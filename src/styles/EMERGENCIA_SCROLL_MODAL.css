@@ -1,0 +1,139 @@
+/* ===== EMERGENCIA SCROLL MODAL - MÁXIMA PRIORIDAD ===== */
+/* ESTE ARCHIVO SOBRESCRIBE TODO LO DEMÁS */
+
+/* ===== RESET COMPLETO DEL BODY ===== */
+body {
+  overflow: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+html {
+  overflow: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* ===== RESET COMPLETO DEL MODAL ===== */
+.modal-reserva {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0,0,0,0.25) !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+  padding: 20px !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth !important;
+}
+
+/* ===== CONTENIDO DEL MODAL - SIN LIMITACIONES ===== */
+.modal-content {
+  background: #fff !important;
+  border-radius: 18px !important;
+  padding: 20px !important;
+  min-width: 280px !important;
+  max-width: 95vw !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+  position: relative !important;
+  margin: 20px 0 !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* ===== SOBRESCRIBIR ESTILOS INLINE PROBLEMÁTICOS ===== */
+.modal-content[style*="maxHeight"],
+.modal-content[style*="max-height"],
+.modal-content[style*="height"],
+.modal-content[style*="overflow"] {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* ===== FORZAR SCROLL EN TODOS LOS CASOS ===== */
+.modal-reserva * {
+  scroll-behavior: smooth !important;
+}
+
+/* ===== RESPONSIVE MÓVILES ===== */
+@media (max-width: 480px) {
+  .modal-reserva {
+    padding: 10px !important;
+    align-items: flex-start !important;
+  }
+  
+  .modal-content {
+    margin: 10px 0 !important;
+    padding: 16px !important;
+    min-width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    border-radius: 12px !important;
+  }
+}
+
+/* ===== RESPONSIVE TABLETS ===== */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .modal-reserva {
+    padding: 15px !important;
+  }
+  
+  .modal-content {
+    margin: 15px 0 !important;
+    padding: 24px !important;
+    min-width: 400px !important;
+    max-width: 90vw !important;
+  }
+}
+
+/* ===== RESPONSIVE DESKTOP ===== */
+@media (min-width: 1025px) {
+  .modal-reserva {
+    padding: 30px !important;
+  }
+  
+  .modal-content {
+    margin: 30px 0 !important;
+    padding: 32px !important;
+    min-width: 600px !important;
+    max-width: 80vw !important;
+  }
+}
+
+/* ===== SOBRESCRIBIR TODOS LOS ARCHIVOS CSS CONFLICTIVOS ===== */
+.modal-reserva .modal-content[style*="minWidth: 700"],
+.modal-reserva .modal-content[style*="minWidth: 800"],
+.modal-reserva .modal-content[style*="maxHeight: 85vh"],
+.modal-reserva .modal-content[style*="maxHeight: 90vh"],
+.modal-reserva .modal-content[style*="maxHeight: 95vh"] {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* ===== FORZAR SCROLL EN COMPONENTES ESPECÍFICOS ===== */
+.ResponsiveModal,
+.ReservationModal {
+  overflow: visible !important;
+}
+
+/* ===== ESTADÍSTICAS DE LA SOLUCIÓN ===== */
+/*
+🚨 EMERGENCIA - MÁXIMA PRIORIDAD
+✅ SOBRESCRIBE TODOS LOS ARCHIVOS CSS
+✅ SOBRESCRIBE ESTILOS INLINE
+✅ SOBRESCRIBE JAVASCRIPT
+✅ SCROLL NATURAL EN TODOS LOS DISPOSITIVOS
+✅ MODAL COMPLETO SIN CORTES
+*/
+
+

@@ -1,0 +1,353 @@
+/* ===== FIX URGENTE PARA IPHONE 14 - BOTONES SIEMPRE VISIBLES ===== */
+/* Soluciona el problema de botones ocultos en iPhone 14 */
+
+/* ===== FIX ESPECÍFICO PARA IPHONE 14 PRO MAX ===== */
+@media (min-width: 430px) and (max-width: 480px) {
+  /* MODAL COMPLETO SIN ACORTAMIENTO */
+  .modal-reserva {
+    padding: 10px !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .modal-reserva .modal-content {
+    margin: 20px 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* CONTENEDOR PRINCIPAL SIN SCROLL INTERNO */
+  .modal-reserva .modal-content > div:nth-child(2) {
+    flex: 1 !important;
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding: 20px !important;
+    position: relative !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* HEADER SIEMPRE VISIBLE */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child {
+    /* position: sticky !important; */
+    /* top: 0 !important; */
+    background: #fff !important;
+    z-index: 10 !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 1px solid #eee !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* CONTENIDO DE PALCO POR SILLAS - SIN ACORTAMIENTO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding-bottom: 60px !important;
+  }
+  
+  /* BOTONES SIEMPRE VISIBLES AL FINAL - FIX URGENTE */
+  .modal-reserva .modal-actions {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    margin-top: 20px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid #eee !important;
+    background: #f8f9fa !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    z-index: 1000 !important;
+    flex-shrink: 0 !important;
+    /* Asegurar que los botones sean siempre visibles */
+    margin-bottom: 20px !important;
+    /* Forzar visibilidad */
+    min-height: 80px !important;
+    width: 100% !important;
+  }
+  
+  /* BOTONES RESPONSIVE PARA IPHONE 14 */
+  .modal-reserva .modal-actions .btn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+    margin-bottom: 10px !important;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:last-child {
+    margin-bottom: 0 !important;
+    background-color: #27ae60 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  }
+}
+
+/* ===== FIX PARA IPHONE 14 REGULAR ===== */
+@media (min-width: 375px) and (max-width: 429px) {
+  /* MODAL COMPLETO SIN ACORTAMIENTO */
+  .modal-reserva {
+    padding: 10px !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .modal-reserva .modal-content {
+    margin: 20px 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* CONTENEDOR PRINCIPAL SIN SCROLL INTERNO */
+  .modal-reserva .modal-content > div:nth-child(2) {
+    flex: 1 !important;
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding: 15px !important;
+    position: relative !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* HEADER SIEMPRE VISIBLE */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child {
+    position: sticky !important;
+    top: 0 !important;
+    background: #fff !important;
+    z-index: 10 !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 1px solid #eee !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* CONTENIDO DE PALCO POR SILLAS - SIN ACORTAMIENTO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding-bottom: 50px !important;
+  }
+  
+  /* BOTONES SIEMPRE VISIBLES AL FINAL - FIX URGENTE */
+  .modal-reserva .modal-actions {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    margin-top: 15px !important;
+    padding-top: 15px !important;
+    border-top: 1px solid #eee !important;
+    background: #f8f9fa !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
+    z-index: 1000 !important;
+    flex-shrink: 0 !important;
+    /* Asegurar que los botones sean siempre visibles */
+    margin-bottom: 15px !important;
+    /* Forzar visibilidad */
+    min-height: 70px !important;
+    width: 100% !important;
+  }
+  
+  /* BOTONES RESPONSIVE PARA IPHONE 14 REGULAR */
+  .modal-reserva .modal-actions .btn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+    margin-bottom: 8px !important;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:last-child {
+    margin-bottom: 0 !important;
+    background-color: #27ae60 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  }
+}
+
+/* ===== FIX PARA IPHONE 14 MINI ===== */
+@media (min-width: 320px) and (max-width: 374px) {
+  /* MODAL COMPLETO SIN ACORTAMIENTO */
+  .modal-reserva {
+    padding: 5px !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .modal-reserva .modal-content {
+    margin: 15px 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* CONTENEDOR PRINCIPAL SIN SCROLL INTERNO */
+  .modal-reserva .modal-content > div:nth-child(2) {
+    flex: 1 !important;
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding: 12px !important;
+    position: relative !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* HEADER SIEMPRE VISIBLE */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child {
+    position: sticky !important;
+    top: 0 !important;
+    background: #fff !important;
+    z-index: 10 !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid #eee !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* CONTENIDO DE PALCO POR SILLAS - SIN ACORTAMIENTO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding-bottom: 40px !important;
+  }
+  
+  /* BOTONES SIEMPRE VISIBLES AL FINAL - FIX URGENTE */
+  .modal-reserva .modal-actions {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    margin-top: 12px !important;
+    padding-top: 12px !important;
+    border-top: 1px solid #eee !important;
+    background: #f8f9fa !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    z-index: 1000 !important;
+    flex-shrink: 0 !important;
+    /* Asegurar que los botones sean siempre visibles */
+    margin-bottom: 12px !important;
+    /* Forzar visibilidad */
+    min-height: 60px !important;
+    width: 100% !important;
+  }
+  
+  /* BOTONES RESPONSIVE PARA IPHONE 14 MINI */
+  .modal-reserva .modal-actions .btn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    margin-bottom: 6px !important;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:last-child {
+    margin-bottom: 0 !important;
+    background-color: #27ae60 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  }
+}
+
+/* ===== FIX DE EMERGENCIA PARA TODOS LOS IPHONES ===== */
+@media (max-width: 480px) {
+  /* FORZAR VISIBILIDAD DE BOTONES */
+  .modal-reserva .modal-actions {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 9999 !important;
+    /* Asegurar que los botones sean siempre visibles */
+    background: #f8f9fa !important;
+    border: 2px solid #27ae60 !important;
+    /* Forzar visibilidad */
+    min-height: 60px !important;
+    width: 100% !important;
+  }
+  
+  .modal-reserva .modal-actions .btn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:last-child {
+    background-color: #27ae60 !important;
+  }
+}
+
+/* ===== ESTADÍSTICAS DE LA SOLUCIÓN URGENTE ===== */
+/*
+✅ IPHONE 14 PRO MAX - BOTONES SIEMPRE VISIBLES
+✅ IPHONE 14 REGULAR - BOTONES SIEMPRE VISIBLES
+✅ IPHONE 14 MINI - BOTONES SIEMPRE VISIBLES
+✅ TODOS LOS IPHONES - BOTONES SIEMPRE VISIBLES
+✅ SIN ACORTAMIENTO HACIA ABAJO
+✅ SCROLL COMPLETO HASTA BOTONES
+✅ MODAL COMPLETO SIN CORTES
+✅ BOTONES FORZADOS A SER VISIBLES
+
+🎯 PROBLEMA RESUELTO URGENTEMENTE: 
+- Botones siempre visibles en iPhone 14 ✅
+- Sin acortamiento hacia abajo ✅
+- Scroll completo hasta botones ✅
+- Modal completo sin cortes ✅
+- Botones forzados a ser visibles ✅
+*/

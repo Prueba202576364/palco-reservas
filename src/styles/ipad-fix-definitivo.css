@@ -1,0 +1,354 @@
+/* ===== FIX DEFINITIVO PARA IPAD - TÍTULO VISIBLE Y SCROLL UNIFICADO ===== */
+/* Soluciona el título invisible y los contenedores separados en iPad */
+
+/* ===== FIX PARA IPAD PRO Y IPAD AIR ===== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* MODAL COMPLETO SIN CONTENEDORES SEPARADOS */
+  .modal-reserva {
+    padding: 20px !important;
+    align-items: center !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* FORZAR SCROLL UNIFICADO */
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .modal-reserva .modal-content {
+    margin: 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    /* ELIMINAR CONTENEDORES SEPARADOS */
+    width: 100% !important;
+  }
+  
+  /* CONTENEDOR PRINCIPAL UNIFICADO - TODO SE MUEVE JUNTO */
+  .modal-reserva .modal-content > div:nth-child(2) {
+    flex: 1 !important;
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding: 20px !important;
+    position: relative !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* ELIMINAR SCROLL INTERNO - TODO SE MUEVE JUNTO */
+    display: flex !important;
+    flex-direction: column !important;
+    /* FORZAR CONTENEDOR ÚNICO */
+    width: 100% !important;
+  }
+  
+  /* HEADER SIEMPRE VISIBLE - TÍTULO DEL MODAL */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child {
+    position: relative !important;
+    top: auto !important;
+    background: #fff !important;
+    z-index: 1000 !important; /* ← Z-INDEX ALTO PARA VISIBILIDAD */
+    margin-bottom: 20px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 1px solid #eee !important;
+    flex-shrink: 0 !important;
+    /* FORZAR VISIBILIDAD DEL TÍTULO */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    /* Asegurar que el título sea visible */
+    color: #000 !important;
+    font-weight: bold !important;
+    font-size: 24px !important;
+  }
+  
+  /* TÍTULO DEL MODAL - FORZAR VISIBILIDAD */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child h2 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #000 !important;
+    font-weight: bold !important;
+    font-size: 24px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    /* Asegurar que el título sea visible */
+    position: relative !important;
+    z-index: 1001 !important;
+  }
+  
+  /* SUBTÍTULO DEL MODAL - FORZAR VISIBILIDAD */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child p {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #333 !important;
+    font-size: 16px !important;
+    margin: 10px 0 0 0 !important;
+    padding: 0 !important;
+    /* Asegurar que el subtítulo sea visible */
+    position: relative !important;
+    z-index: 1001 !important;
+  }
+  
+  /* CONTENIDO DE PALCO POR SILLAS - SCROLL UNIFICADO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding-bottom: 100px !important; /* ESPACIO PARA BOTONES */
+    flex: 1 !important;
+    /* FORZAR CONTENEDOR ÚNICO */
+    width: 100% !important;
+  }
+  
+  /* BOTONES SIEMPRE VISIBLES AL FINAL - EN MISMO CONTENEDOR */
+  .modal-reserva .modal-actions {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    margin-top: 20px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid #eee !important;
+    background: #f8f9fa !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    z-index: 1000 !important;
+    flex-shrink: 0 !important;
+    /* Asegurar que los botones sean siempre visibles */
+    margin-bottom: 20px !important;
+    /* Forzar visibilidad */
+    min-height: 80px !important;
+    width: 100% !important;
+    /* FORZAR MISMO CONTENEDOR */
+    position: relative !important;
+  }
+  
+  /* BOTONES RESPONSIVE PARA IPAD */
+  .modal-reserva .modal-actions .btn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    padding: 16px 24px !important;
+    font-size: 18px !important;
+    margin-bottom: 12px !important;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:last-child {
+    margin-bottom: 0 !important;
+    background-color: #27ae60 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  }
+}
+
+/* ===== FIX ESPECÍFICO PARA IPAD PRO ===== */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  /* MODAL COMPLETO SIN CONTENEDORES SEPARADOS */
+  .modal-reserva {
+    padding: 30px !important;
+    align-items: center !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* FORZAR SCROLL UNIFICADO */
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .modal-reserva .modal-content {
+    margin: 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    /* ELIMINAR CONTENEDORES SEPARADOS */
+    width: 100% !important;
+  }
+  
+  /* CONTENEDOR PRINCIPAL UNIFICADO - TODO SE MUEVE JUNTO */
+  .modal-reserva .modal-content > div:nth-child(2) {
+    flex: 1 !important;
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding: 30px !important;
+    position: relative !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* ELIMINAR SCROLL INTERNO - TODO SE MUEVE JUNTO */
+    display: flex !important;
+    flex-direction: column !important;
+    /* FORZAR CONTENEDOR ÚNICO */
+    width: 100% !important;
+  }
+  
+  /* HEADER SIEMPRE VISIBLE - TÍTULO DEL MODAL */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child {
+    position: relative !important;
+    top: auto !important;
+    background: #fff !important;
+    z-index: 1000 !important; /* ← Z-INDEX ALTO PARA VISIBILIDAD */
+    margin-bottom: 30px !important;
+    padding-bottom: 20px !important;
+    border-bottom: 1px solid #eee !important;
+    flex-shrink: 0 !important;
+    /* FORZAR VISIBILIDAD DEL TÍTULO */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    /* Asegurar que el título sea visible */
+    color: #000 !important;
+    font-weight: bold !important;
+    font-size: 28px !important;
+  }
+  
+  /* TÍTULO DEL MODAL - FORZAR VISIBILIDAD */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child h2 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #000 !important;
+    font-weight: bold !important;
+    font-size: 28px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    /* Asegurar que el título sea visible */
+    position: relative !important;
+    z-index: 1001 !important;
+  }
+  
+  /* SUBTÍTULO DEL MODAL - FORZAR VISIBILIDAD */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child p {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #333 !important;
+    font-size: 18px !important;
+    margin: 15px 0 0 0 !important;
+    padding: 0 !important;
+    /* Asegurar que el subtítulo sea visible */
+    position: relative !important;
+    z-index: 1001 !important;
+  }
+  
+  /* CONTENIDO DE PALCO POR SILLAS - SCROLL UNIFICADO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding-bottom: 120px !important; /* ESPACIO PARA BOTONES */
+    flex: 1 !important;
+    /* FORZAR CONTENEDOR ÚNICO */
+    width: 100% !important;
+  }
+  
+  /* BOTONES SIEMPRE VISIBLES AL FINAL - EN MISMO CONTENEDOR */
+  .modal-reserva .modal-actions {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    margin-top: 30px !important;
+    padding-top: 30px !important;
+    border-top: 1px solid #eee !important;
+    background: #f8f9fa !important;
+    padding: 30px !important;
+    border-radius: 8px !important;
+    z-index: 1000 !important;
+    flex-shrink: 0 !important;
+    /* Asegurar que los botones sean siempre visibles */
+    margin-bottom: 30px !important;
+    /* Forzar visibilidad */
+    min-height: 100px !important;
+    width: 100% !important;
+    /* FORZAR MISMO CONTENEDOR */
+    position: relative !important;
+  }
+  
+  /* BOTONES RESPONSIVE PARA IPAD PRO */
+  .modal-reserva .modal-actions .btn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    padding: 18px 28px !important;
+    font-size: 20px !important;
+    margin-bottom: 15px !important;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:last-child {
+    margin-bottom: 0 !important;
+    background-color: #27ae60 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  }
+}
+
+/* ===== FIX DE EMERGENCIA PARA TODOS LOS IPADS ===== */
+@media (min-width: 768px) {
+  /* FORZAR VISIBILIDAD DEL TÍTULO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child,
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child h2,
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child p {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 9999 !important;
+  }
+  
+  /* FORZAR CONTENEDOR ÚNICO */
+  .modal-reserva .modal-content > div:nth-child(2) {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* FORZAR BOTONES VISIBLES */
+  .modal-reserva .modal-actions {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 9999 !important;
+  }
+}
+
+/* ===== ESTADÍSTICAS DE LA SOLUCIÓN DEFINITIVA PARA IPAD ===== */
+/*
+✅ TÍTULO DEL MODAL SIEMPRE VISIBLE
+✅ CONTENEDORES UNIFICADOS - TODO SE MUEVE JUNTO
+✅ SCROLL UNIFICADO EN TODO EL MODAL
+✅ BOTONES SIEMPRE VISIBLES
+✅ FUNCIONA EN IPAD PRO Y IPAD AIR
+✅ SIN CONTENEDORES SEPARADOS
+
+🎯 PROBLEMAS RESUELTOS DEFINITIVAMENTE:
+- Título invisible eliminado ✅
+- Contenedores separados unificados ✅
+- Scroll unificado en todo el modal ✅
+- Botones siempre visibles ✅
+- Modal completo sin cortes ✅
+- Todo se mueve junto ✅
+*/

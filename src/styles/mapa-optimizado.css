@@ -1,0 +1,210 @@
+/* ===== OPTIMIZACIÓN DEL MAPA - SOLO AUMENTAR SCROLL ===== */
+
+/* ===== CONFIGURACIÓN BASE OPTIMIZADA ===== */
+.mapa-container {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow-y: auto !important; /* RESTAURADO: Con scroll */
+  overflow-x: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.mapa-svg-interactivo {
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  margin: 0 !important;
+}
+
+.mapa-svg-interactivo svg {
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* ===== MÓVILES PEQUEÑOS (320px - 480px) - SOLO AUMENTAR SCROLL ===== */
+@media screen and (min-width: 320px) and (max-width: 480px) {
+  .mapa-container {
+    min-height: 500px !important;
+    padding-bottom: 200px !important; /* AUMENTADO: Solo para más scroll */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 400px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 400px !important;
+  }
+}
+
+/* ===== MÓVILES GRANDES (481px - 767px) - SOLO AUMENTAR SCROLL ===== */
+@media screen and (min-width: 481px) and (max-width: 767px) {
+  .mapa-container {
+    min-height: 600px !important;
+    padding-bottom: 200px !important; /* AUMENTADO: Solo para más scroll */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 400px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 400px !important;
+  }
+}
+
+/* ===== TABLETS/IPADS (768px - 1024px) - SOLO AUMENTAR SCROLL ===== */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .mapa-container {
+    min-height: 700px !important;
+    padding-bottom: 200px !important; /* AUMENTADO: Solo para más scroll */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 400px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 400px !important;
+  }
+}
+
+/* ===== LAPTOPS (1025px - 1366px) - SOLO AUMENTAR SCROLL ===== */
+@media screen and (min-width: 1025px) and (max-width: 1366px) {
+  .mapa-container {
+    min-height: 800px !important;
+    padding-bottom: 200px !important; /* AUMENTADO: Solo para más scroll */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 400px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 400px !important;
+  }
+}
+
+/* ===== PANTALLAS GRANDES (1367px+) - SOLO AUMENTAR SCROLL ===== */
+@media screen and (min-width: 1367px) {
+  .mapa-container {
+    min-height: 900px !important;
+    padding-bottom: 200px !important; /* AUMENTADO: Solo para más scroll */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 400px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 400px !important;
+  }
+}
+
+/* ===== IPAD MINI ESPECÍFICO - SOLO AUMENTAR SCROLL ===== */
+@media screen and (width: 768px) and (height: 1024px) {
+  .mapa-container {
+    min-height: 500px !important;
+    padding-bottom: 100px !important; /* REDUCIDO: Solo 100px para iPad Mini */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 350px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 350px !important;
+  }
+}
+
+/* ===== IPAD AIR ESPECÍFICO - SOLO AUMENTAR SCROLL ===== */
+@media screen and (width: 820px) and (height: 1180px) {
+  .mapa-container {
+    min-height: 500px !important;
+    padding-bottom: 2000px !important; /* AUMENTADO: De 200px a 2000px */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 350px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 350px !important;
+  }
+}
+
+/* ===== IPAD PRO ESPECÍFICO - SOLO AUMENTAR SCROLL ===== */
+@media screen and (width: 1024px) and (height: 1366px) {
+  .mapa-container {
+    min-height: 500px !important;
+    padding-bottom: 3000px !important; /* AUMENTADO: De 200px a 3000px */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 350px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 350px !important;
+  }
+}
+
+/* ===== ORIENTACIÓN HORIZONTAL - SOLO AUMENTAR SCROLL ===== */
+@media screen and (max-width: 767px) and (orientation: landscape) {
+  .mapa-container {
+    min-height: 400px !important;
+    padding-bottom: 200px !important; /* AUMENTADO: Solo para más scroll */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 300px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 300px !important;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .mapa-container {
+    min-height: 500px !important;
+    padding-bottom: 200px !important; /* AUMENTADO: Solo para más scroll */
+  }
+  
+  .mapa-svg-interactivo {
+    min-height: 350px !important;
+  }
+  
+  .mapa-svg-interactivo svg {
+    min-height: 350px !important;
+  }
+}
+
+/* ===== HEADER Y ELEMENTOS DEL MAPA ===== */
+.mapa-header {
+  padding: 15px !important;
+}
+
+.mapa-header h1 {
+  font-size: 2.5rem !important;
+  margin: 0 !important;
+}
+
+.mapa-header p {
+  font-size: 1.1rem !important;
+  margin: 5px 0 0 0 !important;
+}
+
+.indicador-tiempo-real {
+  padding: 8px !important;
+}
+
+/* ===== INSTRUCCIONES DEL USUARIO ===== */
+.mapa-container > div:nth-child(4) {
+  padding: 10px 15px !important;
+  font-size: 12px !important;
+} 

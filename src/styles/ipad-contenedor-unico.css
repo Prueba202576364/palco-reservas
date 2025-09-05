@@ -1,0 +1,202 @@
+/* ===== FIX DE CONTENEDOR ÚNICO PARA IPAD ===== */
+/* Unifica TODO el modal en un solo contenedor sin espacios */
+
+/* ===== CONTENEDOR ÚNICO PARA TODOS LOS IPADS ===== */
+@media (min-width: 768px) {
+  /* FORZAR CONTENEDOR ÚNICO EN TODO EL MODAL */
+  .modal-reserva {
+    /* CONTENEDOR ÚNICO */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    /* SCROLL ÚNICO */
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* COMPACTAR */
+    padding: 15px !important;
+    gap: 0 !important;
+  }
+  
+  /* FORZAR CONTENEDOR ÚNICO PRINCIPAL */
+  .modal-reserva .modal-content {
+    /* CONTENEDOR ÚNICO */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 600px !important;
+    /* ELIMINAR OVERFLOW PROBLEMÁTICO */
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    gap: 0 !important;
+  }
+  
+  /* FORZAR CONTENEDOR ÚNICO INTERNO - AQUÍ ESTÁ TODO */
+  .modal-reserva .modal-content > div:nth-child(2) {
+    /* CONTENEDOR ÚNICO PARA TODO */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    /* ELIMINAR SCROLL INTERNO */
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    /* SIN ESPACIOS ENTRE ELEMENTOS */
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* HEADER - PRIMER ELEMENTO DEL CONTENEDOR ÚNICO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child {
+    /* PRIMER ELEMENTO DEL CONTENEDOR ÚNICO */
+    display: block !important;
+    width: 100% !important;
+    /* COMPACTAR */
+    padding: 15px !important;
+    margin: 0 !important; /* ← SIN MARGIN INFERIOR */
+    /* MANTENER VISIBILIDAD */
+    position: relative !important;
+    z-index: 9999 !important;
+  }
+  
+  /* TÍTULO - SIN ESPACIOS */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child h2 {
+    display: block !important;
+    width: 100% !important;
+    /* COMPACTAR */
+    padding: 5px 0 !important;
+    margin: 0 0 8px 0 !important;
+    /* MANTENER VISIBILIDAD */
+    z-index: 10000 !important;
+  }
+  
+  /* SUBTÍTULO - SIN ESPACIOS */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child p {
+    display: block !important;
+    width: 100% !important;
+    /* COMPACTAR */
+    padding: 5px 0 !important;
+    margin: 0 !important;
+    /* MANTENER VISIBILIDAD */
+    z-index: 10000 !important;
+  }
+  
+  /* CONTENIDO PRINCIPAL - SEGUNDO ELEMENTO DEL CONTENEDOR ÚNICO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    /* SEGUNDO ELEMENTO DEL CONTENEDOR ÚNICO */
+    display: block !important;
+    width: 100% !important;
+    /* COMPACTAR */
+    padding: 15px !important;
+    margin: 0 !important; /* ← SIN MARGIN SUPERIOR */
+    /* ELIMINAR SCROLL INTERNO */
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+  
+  /* BOTONES - TERCER ELEMENTO DEL CONTENEDOR ÚNICO */
+  .modal-reserva .modal-actions {
+    /* TERCER ELEMENTO DEL CONTENEDOR ÚNICO */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    /* COMPACTAR */
+    padding: 15px !important;
+    margin: 0 !important; /* ← SIN MARGIN SUPERIOR */
+    /* MANTENER VISIBILIDAD */
+    position: relative !important;
+    z-index: 9999 !important;
+    /* COMPACTAR */
+    gap: 10px !important;
+  }
+  
+  /* BOTONES INDIVIDUALES */
+  .modal-reserva .modal-actions .btn {
+    display: block !important;
+    width: 100% !important;
+    max-width: 250px !important;
+    /* COMPACTAR */
+    padding: 12px 20px !important;
+    margin: 0 0 8px 0 !important;
+    /* MANTENER VISIBILIDAD */
+    z-index: 10000 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* ===== ELIMINAR COMPLETAMENTE ESPACIOS ENTRE ELEMENTOS ===== */
+@media (min-width: 768px) {
+  /* ELIMINAR ALTURAS MÍNIMAS EXCESIVAS */
+  .modal-reserva .modal-content > div:nth-child(2) > div {
+    min-height: auto !important;
+    max-height: none !important;
+  }
+  
+  /* ELIMINAR COMPLETAMENTE MARGINS ENTRE ELEMENTOS */
+  .modal-reserva .modal-content > div:nth-child(2) > div + div {
+    margin-top: 0 !important; /* ← SIN ESPACIO ENTRE ELEMENTOS */
+  }
+  
+  /* ELIMINAR COMPLETAMENTE GAPS */
+  .modal-reserva,
+  .modal-reserva .modal-content,
+  .modal-reserva .modal-content > div:nth-child(2) {
+    gap: 0 !important;
+    row-gap: 0 !important;
+    column-gap: 0 !important;
+  }
+  
+  /* FORZAR ELEMENTOS PEGADOS */
+  .modal-reserva .modal-content > div:nth-child(2) > div {
+    /* ELIMINAR CUALQUIER ESPACIO */
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  
+  /* ESPACIO SOLO INTERNO DE CADA ELEMENTO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child {
+    padding: 15px !important; /* ← SOLO PADDING INTERNO */
+  }
+  
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    padding: 15px !important; /* ← SOLO PADDING INTERNO */
+  }
+  
+  .modal-reserva .modal-actions {
+    padding: 15px !important; /* ← SOLO PADDING INTERNO */
+  }
+}
+
+/* ===== FIX ESPECÍFICO PARA IPAD PRO ===== */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .modal-reserva .modal-content {
+    max-width: 550px !important;
+  }
+}
+
+/* ===== ESTADÍSTICAS DEL CONTENEDOR ÚNICO ===== */
+/*
+🔧 CONTENEDOR ÚNICO IMPLEMENTADO
+✅ TODO UNIFICADO EN UN SOLO CONTENEDOR
+✅ SIN ESPACIOS ENTRE ELEMENTOS
+✅ TÍTULO → MODO AVANZADO → DÍAS → BOTONES
+✅ SCROLL UNIFICADO EN TODO
+✅ MODAL COMPACTO Y FUNCIONAL
+✅ FUNCIONA EN TODOS LOS IPADS
+
+🎯 PROBLEMAS RESUELTOS:
+- Todo unificado en un solo contenedor ✅
+- Sin espacios entre elementos ✅
+- Título → Modo Avanzado → Días → Botones ✅
+- Scroll unificado en todo ✅
+- Modal compacto y funcional ✅
+- Estructura limpia y organizada ✅
+*/

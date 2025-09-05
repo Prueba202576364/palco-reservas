@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base responsive consistente con palcos-cliente */
+@layer base {
+  html, body, #root {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important; /* permitir scroll global */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Mejorar scroll en iOS */
+  }
+
+  /* Fondo y color de texto de la marca */
+  html, body {
+    background: linear-gradient(135deg, #FFFFFF 0%, #D97706 25%, #8B4513 50%, #451A03 75%, #FFFFFF 100%) !important;
+    color: #451A03 !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Evitar zoom en iOS */
+  @supports (-webkit-touch-callout: none) {
+    input, select, textarea { font-size: 16px !important; }
+  }
+}
+
+@layer components {
+  /* Contenedor principal seguro */
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 2.5vw, 24px);
+    padding-right: clamp(12px, 2.5vw, 24px);
+    min-height: 100vh;
+    padding-bottom: 300px; /* Aumentado aún más para mejor scroll en móviles */
+    overflow-y: auto; /* permitir scroll en el contenedor */
+  }
+
+  /* Grid adaptable por ancho */
+  .palcos-grid {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  /* Modal overlay base */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  @media (min-width: 640px) {
+    .modal-overlay { padding: 16px; }
+  }
+  .modal-reserva {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    width: 95vw;
+    height: 95vh;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow: hidden;
+  }
+  @media (min-width: 640px) {
+    .modal-reserva { width: auto; height: auto; }
+  }
+}
+
+/* ===== MEJORAS ADICIONALES PARA SCROLL OPTIMIZADO ===== */
+
+/* Asegurar que la paginación tenga espacio suficiente */
+.pagination-container {
+  margin-top: 30px;
+  margin-bottom: 80px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Mejorar el scroll en diferentes dispositivos */
+@media (max-width: 768px) {
+  .container {
+    padding-bottom: 350px; /* Aumentado aún más para móviles */
+  }
+  
+  .pagination-container {
+    margin-bottom: 300px; /* Aumentado aún más para móviles */
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    padding-bottom: 100px; /* REDUCIDO: Solo 100px para iPad Mini */
+  }
+  
+  .pagination-container {
+    margin-bottom: 50px; /* REDUCIDO: Solo 50px para iPad Mini */
+  }
+}
+
+@media (min-width: 1025px) {
+  .container {
+    padding-bottom: 200px; /* Aumentado para desktop */
+  }
+  
+  .pagination-container {
+    margin-bottom: 150px; /* Aumentado para desktop */
+  }
+}
+
+/* ===== CONFIGURACIONES ESPECÍFICAS PARA IPAD AIR Y IPAD PRO ===== */
+/* iPad Air (820x1180) - ALTA PRIORIDAD */
+@media (min-width: 820px) and (max-width: 834px) and (min-height: 1180px) and (max-height: 1194px) {
+  .container {
+    padding-bottom: 3000px !important; /* AUMENTADO: De 1000px a 3000px */
+  }
+  
+  .pagination-container {
+    margin-bottom: 2500px !important; /* AUMENTADO: De 1000px a 2500px */
+  }
+  
+  /* Forzar scroll completo */
+  html, body {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    overflow-x: hidden !important;
+    height: auto !important; /* AUMENTADO: De 100% a auto */
+    min-height: auto !important; /* AUMENTADO: Sin limitación */
+  }
+  
+  #root {
+    min-height: auto !important; /* AUMENTADO: De 100vh a auto */
+    overflow-x: hidden !important;
+    height: auto !important; /* AUMENTADO: Sin limitación */
+  }
+}
+
+/* iPad Pro (1024x1366) - ALTA PRIORIDAD */
+@media (min-width: 1024px) and (max-width: 1024px) and (min-height: 1366px) and (max-height: 1366px) {
+  .container {
+    padding-bottom: 4000px !important; /* AUMENTADO: De 1000px a 4000px */
+  }
+  
+  .pagination-container {
+    margin-bottom: 3500px !important; /* AUMENTADO: De 1000px a 3500px */
+  }
+  
+  /* Forzar scroll completo */
+  html, body {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    overflow-x: hidden !important;
+    height: auto !important; /* AUMENTADO: De 100% a auto */
+    min-height: auto !important; /* AUMENTADO: Sin limitación */
+  }
+  
+  #root {
+    min-height: auto !important; /* AUMENTADO: De 100vh a auto */
+    overflow-x: hidden !important;
+    height: auto !important; /* AUMENTADO: Sin limitación */
+  }
+}
+
+/* iPad Pro 11" y 12.9" - ALTA PRIORIDAD */
+@media (min-width: 834px) and (max-width: 1194px) and (min-height: 1194px) {
+  .container {
+    padding-bottom: 120px !important; /* REDUCIDO: De 600px a 120px */
+  }
+  
+  .pagination-container {
+    margin-bottom: 100px !important; /* REDUCIDO: De 550px a 100px */
+  }
+  
+  /* Forzar scroll completo */
+  html, body {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    overflow-x: hidden !important;
+  }
+}
+
+/* ===== MEDIA QUERIES DE MÁXIMA PRIORIDAD - AL FINAL DEL ARCHIVO ===== */
+/* iPad Air (820x1180) - MÁXIMA PRIORIDAD - NO PUEDE SER SOBRESCRITO */
+@media (min-width: 820px) and (max-width: 834px) and (min-height: 1180px) and (max-height: 1194px) {
+  .container {
+    padding-bottom: 150px !important; /* REDUCIDO: De 800px a 150px - VALOR OPTIMIZADO */
+  }
+  
+  .pagination-container {
+    margin-bottom: 120px !important; /* REDUCIDO: De 750px a 120px - VALOR OPTIMIZADO */
+  }
+  
+  /* Forzar scroll completo con máxima prioridad */
+  html, body {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+    min-height: 100vh !important;
+  }
+  
+  #root {
+    min-height: 100vh !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+  }
+}
+
+/* iPad Pro (1024x1366) - MÁXIMA PRIORIDAD - NO PUEDE SER SOBRESCRITO */
+@media (min-width: 1024px) and (max-width: 1024px) and (min-height: 1366px) and (max-height: 1366px) {
+  .container {
+    padding-bottom: 180px !important; /* REDUCIDO: De 900px a 180px - VALOR OPTIMIZADO */
+  }
+  
+  .pagination-container {
+    margin-bottom: 150px !important; /* REDUCIDO: De 850px a 150px - VALOR OPTIMIZADO */
+  }
+  
+  /* Forzar scroll completo con máxima prioridad */
+  html, body {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+    min-height: 100vh !important;
+  }
+  
+  #root {
+    min-height: 100vh !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+  }
+}

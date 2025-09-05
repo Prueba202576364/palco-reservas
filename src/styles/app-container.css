@@ -1,0 +1,141 @@
+/* ===== DEFINICIÓN DE LA CLASE APP-CONTAINER-UNIFICADO ===== */
+/* Esta clase está siendo usada en el JSX pero no estaba definida */
+
+.app-container-unificado {
+  width: 100%;
+  min-height: 100vh;
+  background-color: white;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0 auto;
+  padding: 1rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Responsive para diferentes tamaños de pantalla */
+@media (min-width: 640px) {
+  .app-container-unificado {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .app-container-unificado {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-container-unificado {
+    padding: 2rem;
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .app-container-unificado {
+    padding: 2rem;
+    max-width: 1400px;
+  }
+}
+
+/* Específico para iPad */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .app-container-unificado {
+    padding: 1rem;
+    max-width: 100%;
+    overflow-y: visible;
+    height: auto;
+    min-height: auto;
+  }
+}
+
+/* Específico para iPad Mini */
+@media (min-width: 768px) and (max-width: 810px) and (min-height: 1024px) and (max-height: 1080px) {
+  .app-container-unificado {
+    padding: 0.75rem;
+  }
+}
+
+/* Específico para iPad Air */
+@media (min-width: 810px) and (max-width: 834px) and (min-height: 1080px) and (max-height: 1194px) {
+  .app-container-unificado {
+    padding: 1rem;
+  }
+}
+
+/* Específico para iPad Pro */
+@media (min-width: 1024px) and (max-width: 1040px) and (min-height: 1365px) and (max-height: 1380px) {
+  .app-container-unificado {
+    padding: 1.5rem;
+  }
+}
+
+/* Orientación landscape */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .app-container-unificado {
+    padding: 0.75rem;
+  }
+}
+
+/* ===== SCROLL FORZADO PARA IPAD AIR Y PRO ===== */
+/* iPad Air (810x1080) - ALTA PRIORIDAD */
+@media (min-width: 810px) and (max-width: 834px) and (min-height: 1080px) and (max-height: 1194px) {
+  .container {
+    padding-bottom: 3000px !important; /* AUMENTADO: 3000px para iPad Air */
+  }
+  
+  .palcos-section {
+    margin-bottom: 2000px !important; /* AUMENTADO: 2000px para iPad Air */
+  }
+  
+  .pagination-container {
+    margin-bottom: 2500px !important; /* AUMENTADO: 2500px para iPad Air */
+  }
+  
+  /* Forzar scroll completo */
+  html, body {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    overflow-x: hidden !important;
+    height: auto !important; /* Sin limitación */
+    min-height: auto !important; /* Sin limitación */
+  }
+  
+  #root {
+    min-height: auto !important; /* Sin limitación */
+    overflow-x: hidden !important;
+    height: auto !important; /* Sin limitación */
+  }
+}
+
+/* iPad Pro (1024x1365) - ALTA PRIORIDAD */
+@media (min-width: 1024px) and (max-width: 1040px) and (min-height: 1365px) and (max-height: 1380px) {
+  .container {
+    padding-bottom: 4000px !important; /* AUMENTADO: 4000px para iPad Pro */
+  }
+  
+  .palcos-section {
+    margin-bottom: 3000px !important; /* AUMENTADO: 3000px para iPad Pro */
+  }
+  
+  .pagination-container {
+    margin-bottom: 3500px !important; /* AUMENTADO: 3500px para iPad Pro */
+  }
+  
+  /* Forzar scroll completo */
+  html, body {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    overflow-x: hidden !important;
+    height: auto !important; /* Sin limitación */
+    min-height: auto !important; /* Sin limitación */
+  }
+  
+  #root {
+    min-height: auto !important; /* Sin limitación */
+    overflow-x: hidden !important;
+    height: auto !important; /* Sin limitación */
+  }
+}

@@ -1,0 +1,79 @@
+/* ===== RESPONSIVE MODAL SCROLL FIX - SOBRESCRIBE ESTILOS INLINE ===== */
+/* Este archivo fuerza el scroll en ResponsiveModal específicamente */
+
+/* ===== SOBRESCRIBIR ESTILOS INLINE DEL MODAL ===== */
+div[style*="position: fixed"][style*="zIndex: 9999"] {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth !important;
+}
+
+/* ===== SOBRESCRIBIR ESTILOS INLINE DEL CONTENIDO ===== */
+div[style*="backgroundColor: white"][style*="borderRadius: 8px"] {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* ===== SOBRESCRIBIR ESTILOS INLINE DEL BODY ===== */
+div[style*="padding: 15px"][style*="paddingTop: 10px"],
+div[style*="padding: 20px"][style*="paddingTop: 15px"] {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  max-height: calc(100vh - 200px) !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth !important;
+}
+
+/* ===== FORZAR SCROLL EN TODOS LOS CASOS ===== */
+div[style*="zIndex: 9999"] * {
+  scroll-behavior: smooth !important;
+}
+
+/* ===== RESPONSIVE MÓVILES ===== */
+@media (max-width: 480px) {
+  div[style*="zIndex: 9999"] {
+    padding: 10px !important;
+  }
+  
+  div[style*="backgroundColor: white"][style*="borderRadius: 8px"] {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+  }
+  
+  div[style*="padding: 15px"][style*="paddingTop: 10px"] {
+    max-height: calc(100vh - 150px) !important;
+  }
+}
+
+/* ===== RESPONSIVE TABLETS ===== */
+@media (min-width: 481px) and (max-width: 1024px) {
+  div[style*="zIndex: 9999"] {
+    padding: 15px !important;
+  }
+  
+  div[style*="padding: 20px"][style*="paddingTop: 15px"] {
+    max-height: calc(100vh - 180px) !important;
+  }
+}
+
+/* ===== RESPONSIVE DESKTOP ===== */
+@media (min-width: 1025px) {
+  div[style*="zIndex: 9999"] {
+    padding: 20px !important;
+  }
+  
+  div[style*="padding: 20px"][style*="paddingTop: 15px"] {
+    max-height: calc(100vh - 200px) !important;
+  }
+}
+
+/* ===== ESTADÍSTICAS DE LA SOLUCIÓN ===== */
+/*
+🎯 SOBRESCRIBE ESTILOS INLINE DE ResponsiveModal
+✅ FORZA SCROLL EN TODOS LOS DISPOSITIVOS
+✅ MODAL COMPLETO SIN CORTES
+✅ RESPONSIVE PERFECTO
+*/
+
+

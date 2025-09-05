@@ -1,0 +1,223 @@
+/* ===== FIX COMPLETO PARA SCROLL DE MODALES ===== */
+/* Soluciona el problema de scroll en todos los dispositivos */
+
+/* ===== SCROLL DEL OVERLAY ===== */
+.modal-overlay {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth !important;
+}
+
+/* ===== SCROLL DEL MODAL ===== */
+.modal-cliente {
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* ===== SCROLL DEL BODY DEL MODAL ===== */
+.modal-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* ===== SCROLLBAR PERSONALIZADO ===== */
+.modal-body::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 4px !important;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #c1c1c1 !important;
+  border-radius: 4px !important;
+  transition: background 0.3s ease !important;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8 !important;
+}
+
+/* ===== FIX PARA MÓVILES ===== */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0 !important;
+    align-items: flex-start !important;
+  }
+  
+  .modal-cliente {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+  }
+  
+  .modal-body {
+    padding: 0 20px 20px 20px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* ===== FIX PARA TABLETS ===== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .modal-overlay {
+    padding: 20px !important;
+    align-items: flex-start !important;
+  }
+  
+  .modal-cliente {
+    max-height: 90vh !important;
+    overflow: hidden !important;
+  }
+  
+  .modal-body {
+    padding: 0 25px 25px 25px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* ===== FIX PARA DESKTOP ===== */
+@media (min-width: 1025px) {
+  .modal-overlay {
+    padding: 20px !important;
+    align-items: center !important;
+  }
+  
+  .modal-cliente {
+    max-height: 90vh !important;
+    overflow: hidden !important;
+  }
+  
+  .modal-body {
+    padding: 0 30px 30px 30px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* ===== FIX ESPECÍFICO PARA IPAD ===== */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .modal-body {
+    padding: 0 20px 20px 20px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .modal-body {
+    padding: 0 15px 15px 15px !important;
+  }
+}
+
+/* ===== FIX PARA SAFARI EN IPAD ===== */
+@supports (-webkit-touch-callout: none) {
+  .modal-body {
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* ===== FIX PARA FIREFOX ===== */
+@supports (scrollbar-width: thin) {
+  .modal-body {
+    scrollbar-width: thin !important;
+    scrollbar-color: #c1c1c1 #f1f1f1 !important;
+  }
+}
+
+/* ===== ANIMACIONES DE SCROLL ===== */
+.modal-body {
+  scroll-behavior: smooth !important;
+}
+
+/* ===== FOCUS VISIBLE PARA ACCESIBILIDAD ===== */
+.modal-body:focus-visible {
+  outline: 2px solid #3498db !important;
+  outline-offset: 2px !important;
+}
+
+/* ===== FIX PARA CONTENIDO LARGO ===== */
+.modal-body > * {
+  flex-shrink: 0 !important;
+}
+
+.modal-body > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ===== FIX PARA FORMULARIOS ===== */
+.modal-body form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+}
+
+.modal-body .form-group {
+  flex-shrink: 0 !important;
+}
+
+.modal-body .modal-actions {
+  flex-shrink: 0 !important;
+  margin-top: auto !important;
+  padding-top: 20px !important;
+}
+
+/* ===== FIX PARA BOTONES ===== */
+.modal-actions {
+  /* position: sticky !important; */
+  /* bottom: 0 !important; */
+  background: #f8f9fa !important;
+  border-top: 1px solid #e9ecef !important;
+  padding: 20px !important;
+  margin: 0 -25px -25px -25px !important;
+  z-index: 10 !important;
+}
+
+@media (max-width: 768px) {
+  .modal-actions {
+    margin: 0 -20px -20px -20px !important;
+    padding: 20px !important;
+  }
+}
+
+/* ===== FIX PARA HEADER ===== */
+.modal-header {
+  flex-shrink: 0 !important;
+  /* position: sticky !important; */
+  /* top: 0 !important; */
+  z-index: 20 !important;
+}
+
+/* ===== FIX PARA SEPARADOR ===== */
+.modal-header + div {
+  flex-shrink: 0 !important;
+}
+
+/* ===== FIX PARA CONTENIDO ESPECÍFICO ===== */
+.info-palco-completo,
+.info-palco-sillas,
+.resumen-pago {
+  flex-shrink: 0 !important;
+}
+
+/* ===== FIX PARA SCROLL SUAVE ===== */
+html {
+  scroll-behavior: smooth !important;
+}
+
+/* ===== FIX PARA TOUCH DEVICES ===== */
+@media (hover: none) and (pointer: coarse) {
+  .modal-body {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: auto !important;
+  }
+}

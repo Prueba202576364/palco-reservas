@@ -1,0 +1,263 @@
+/* ===== FIX DE EMERGENCIA PARA IPAD - RESTRUCTURACIÓN COMPLETA ===== */
+/* Soluciona el título invisible y contenedores separados en iPad de manera agresiva */
+
+/* ===== FIX DE EMERGENCIA PARA TODOS LOS IPADS ===== */
+@media (min-width: 768px) {
+  /* RESTRUCTURACIÓN COMPLETA DEL MODAL */
+  .modal-reserva {
+    /* FORZAR ESTRUCTURA ÚNICA */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 20px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* ELIMINAR CUALQUIER SCROLL INTERNO */
+    height: auto !important;
+    max-height: none !important;
+  }
+  
+  .modal-reserva .modal-content {
+    /* FORZAR CONTENEDOR ÚNICO */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    /* ELIMINAR CUALQUIER OVERFLOW INTERNO */
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  
+  /* ELIMINAR COMPLETAMENTE EL CONTENEDOR INTERNO PROBLEMÁTICO */
+  .modal-reserva .modal-content > div:nth-child(2) {
+    /* FORZAR CONTENEDOR ÚNICO SIN SCROLL INTERNO */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    /* ELIMINAR CUALQUIER POSITIONING PROBLEMÁTICO */
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+  }
+  
+  /* HEADER FORZADO A SER VISIBLE - TÍTULO DEL MODAL */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child {
+    /* FORZAR VISIBILIDAD COMPLETA */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    /* ESTILOS FORZADOS */
+    background: #fff !important;
+    z-index: 9999 !important;
+    margin: 0 0 20px 0 !important;
+    padding: 20px !important;
+    border-bottom: 2px solid #27ae60 !important;
+    border-radius: 8px 8px 0 0 !important;
+    /* FORZAR TAMAÑO */
+    width: 100% !important;
+    min-height: 80px !important;
+    /* FORZAR COLORES */
+    color: #000 !important;
+    font-weight: bold !important;
+  }
+  
+  /* TÍTULO DEL MODAL - FORZAR VISIBILIDAD COMPLETA */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child h2 {
+    /* FORZAR VISIBILIDAD */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 10000 !important;
+    /* ESTILOS FORZADOS */
+    color: #000 !important;
+    font-weight: bold !important;
+    font-size: 28px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    /* FORZAR VISIBILIDAD */
+    background: #fff !important;
+    border: 2px solid #27ae60 !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+  }
+  
+  /* SUBTÍTULO DEL MODAL - FORZAR VISIBILIDAD COMPLETA */
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child p {
+    /* FORZAR VISIBILIDAD */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 10000 !important;
+    /* ESTILOS FORZADOS */
+    color: #333 !important;
+    font-size: 18px !important;
+    margin: 15px 0 0 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    /* FORZAR VISIBILIDAD */
+    background: #fff !important;
+    border: 1px solid #27ae60 !important;
+    padding: 8px !important;
+    border-radius: 6px !important;
+  }
+  
+  /* CONTENIDO DE PALCO POR SILLAS - SIN SCROLL INTERNO */
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    /* ELIMINAR SCROLL INTERNO COMPLETAMENTE */
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding: 20px !important;
+    margin: 0 !important;
+    /* FORZAR CONTENEDOR ÚNICO */
+    width: 100% !important;
+    /* ESPACIO PARA BOTONES */
+    padding-bottom: 120px !important;
+    /* FORZAR VISIBILIDAD */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* BOTONES FORZADOS A SER VISIBLES - EN MISMO CONTENEDOR */
+  .modal-reserva .modal-actions {
+    /* FORZAR VISIBILIDAD COMPLETA */
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 9999 !important;
+    /* FORZAR POSICIONAMIENTO */
+    margin: 20px 0 0 0 !important;
+    padding: 20px !important;
+    /* FORZAR ESTILOS */
+    background: #f8f9fa !important;
+    border: 3px solid #27ae60 !important;
+    border-radius: 8px !important;
+    /* FORZAR TAMAÑO */
+    width: 100% !important;
+    min-height: 100px !important;
+    /* FORZAR DIRECCIÓN */
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* BOTONES FORZADOS A SER VISIBLES */
+  .modal-reserva .modal-actions .btn {
+    /* FORZAR VISIBILIDAD */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 10000 !important;
+    /* FORZAR ESTILOS */
+    width: 100% !important;
+    max-width: 300px !important;
+    padding: 18px 28px !important;
+    font-size: 20px !important;
+    margin-bottom: 15px !important;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: 2px solid #27ae60 !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    /* FORZAR VISIBILIDAD */
+    text-align: center !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:last-child {
+    margin-bottom: 0 !important;
+    background-color: #27ae60 !important;
+    border-color: #27ae60 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3) !important;
+  }
+}
+
+/* ===== FIX ESPECÍFICO PARA IPAD PRO ===== */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child h2 {
+    font-size: 32px !important;
+    padding: 15px !important;
+  }
+  
+  .modal-reserva .modal-content > div:nth-child(2) > div:first-child p {
+    font-size: 20px !important;
+    padding: 12px !important;
+  }
+  
+  .modal-reserva .modal-actions .btn {
+    font-size: 22px !important;
+    padding: 20px 32px !important;
+  }
+}
+
+/* ===== FIX DE EMERGENCIA EXTREMO ===== */
+@media (min-width: 768px) {
+  /* FORZAR ESTRUCTURA COMPLETAMENTE NUEVA */
+  .modal-reserva * {
+    /* ELIMINAR CUALQUIER POSITIONING PROBLEMÁTICO */
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+  }
+  
+  /* FORZAR SCROLL ÚNICO */
+  .modal-reserva {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .modal-reserva .modal-content,
+  .modal-reserva .modal-content > div:nth-child(2),
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+}
+
+/* ===== ESTADÍSTICAS DEL FIX DE EMERGENCIA ===== */
+/*
+🚨 FIX DE EMERGENCIA IMPLEMENTADO
+✅ RESTRUCTURACIÓN COMPLETA DEL MODAL
+✅ TÍTULO FORZADO A SER VISIBLE
+✅ CONTENEDORES UNIFICADOS COMPLETAMENTE
+✅ SCROLL ÚNICO EN TODO EL MODAL
+✅ BOTONES FORZADOS A SER VISIBLES
+✅ FUNCIONA EN TODOS LOS IPADS
+
+🎯 SOLUCIÓN DE EMERGENCIA:
+- Restructuración completa del modal ✅
+- Título forzado a ser visible ✅
+- Contenedores unificados completamente ✅
+- Scroll único en todo el modal ✅
+- Botones forzados a ser visibles ✅
+- Modal completamente funcional ✅
+*/

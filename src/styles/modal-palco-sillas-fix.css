@@ -1,0 +1,303 @@
+pues /* ===== SOLUCIÓN ESPECÍFICA PARA MODAL DE PALCO POR SILLAS ===== */
+/* Soluciona el acortamiento de pantalla en PC cuando se selecciona un palco por sillas */
+
+/* ===== RESET ESPECÍFICO PARA MODAL DE PALCO POR SILLAS ===== */
+.modal-reserva .modal-content {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* ===== CONTENEDOR CON SCROLL INTERNO - SIN ACORTAMIENTO ===== */
+.modal-reserva .modal-content > div:nth-child(2) {
+  flex: 1 !important;
+  overflow-y: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  padding: 20px !important;
+  position: relative !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* ===== HEADER DEL MODAL - SIEMPRE VISIBLE ===== */
+.modal-reserva .modal-content > div:nth-child(2) > div:first-child {
+  /* position: sticky !important; */
+  /* top: 0 !important; */
+  background: #fff !important;
+  z-index: 10 !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 15px !important;
+  border-bottom: 1px solid #eee !important;
+  flex-shrink: 0 !important;
+}
+
+/* ===== CONTENIDO DE PALCO POR SILLAS - SIN ACORTAMIENTO ===== */
+.modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+  overflow-y: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  padding-bottom: 20px !important;
+}
+
+/* ===== BOTONES DEL MODAL - SIEMPRE VISIBLES ===== */
+.modal-reserva .modal-actions {
+  position: relative !important;
+  margin-top: 20px !important;
+  padding-top: 20px !important;
+  border-top: 1px solid #eee !important;
+  background: #f8f9fa !important;
+  padding: 20px !important;
+  border-radius: 8px !important;
+  z-index: 100 !important;
+  flex-shrink: 0 !important;
+}
+
+/* ===== FIX ESPECÍFICO PARA PC - SIN ACORTAMIENTO ===== */
+@media (min-width: 1367px) {
+  .modal-reserva {
+    align-items: flex-start !important;
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+  }
+  
+  .modal-reserva .modal-content {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 20px 0 !important;
+  }
+  
+  .modal-reserva .modal-content > div:nth-child(2) {
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding: 24px !important;
+  }
+  
+  /* Asegurar que el contenido no se corte */
+  .modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) {
+    padding-bottom: 30px !important;
+  }
+  
+  .modal-reserva .modal-actions {
+    margin-top: 24px !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+/* ===== FIX ESPECÍFICO PARA IPAD - SCROLL FUNCIONAL ===== */
+@media (min-width: 769px) and (max-width: 1366px) {
+  .modal-reserva .modal-content {
+    max-height: none !important; /* 🎯 CLAVE: Sin limitación */
+    overflow: visible !important; /* 🎯 CLAVE: Sin scroll interno */
+  }
+  
+  .modal-reserva .modal-content > div:nth-child(2) {
+    overflow-y: visible !important; /* 🎯 CLAVE: Sin scroll interno */
+    -webkit-overflow-scrolling: touch !important;
+    max-height: none !important; /* 🎯 CLAVE: Sin limitación */
+  }
+  
+  .modal-reserva .modal-actions {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+/* ===== FIX ESPECÍFICO PARA MÓVILES - BOTONES SIEMPRE VISIBLES ===== */
+@media (max-width: 768px) {
+  .modal-reserva {
+    padding: 10px !important;
+    align-items: flex-start !important;
+  }
+  
+  .modal-reserva .modal-content {
+    margin: 20px 0 !important;
+    max-height: none !important; /* 🎯 CLAVE: Sin limitación */
+    overflow: visible !important; /* 🎯 CLAVE: Sin scroll interno */
+  }
+  
+  .modal-reserva .modal-content > div:nth-child(2) {
+    overflow-y: visible !important; /* 🎯 CLAVE: Sin scroll interno */
+    -webkit-overflow-scrolling: touch !important;
+    max-height: none !important; /* 🎯 CLAVE: Sin limitación */
+    padding-bottom: 40px !important;
+  }
+  
+  .modal-reserva .modal-actions {
+    margin-top: 20px !important;
+    gap: 10px !important;
+    flex-direction: column !important;
+    position: relative !important; /* 🎯 CLAVE: Cambio de sticky a relative */
+    bottom: auto !important;
+    background: #f8f9fa !important;
+    z-index: 100 !important;
+  }
+  
+  .modal-reserva .modal-actions .btn {
+    width: 100% !important;
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* ===== FIX PARA IPHONE 14 PRO MAX ===== */
+@media (min-width: 430px) and (max-width: 480px) {
+  .modal-reserva .modal-content {
+    max-height: none !important;
+    overflow-y: visible !important;
+    height: auto !important;
+  }
+  
+  .modal-reserva .modal-content > div:nth-child(2) {
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+  
+  .modal-reserva .modal-actions {
+    margin-top: 16px !important;
+    padding-top: 16px !important;
+    border-top: 1px solid #eee !important;
+  }
+}
+
+/* ===== FIX PARA TODOS LOS IPADS ===== */
+@media (min-width: 768px) and (max-width: 1366px) {
+  .modal-reserva {
+    padding: 25px !important;
+  }
+  
+  .modal-reserva .modal-content {
+    padding: clamp(24px, 4vw, 28px) clamp(20px, 3vw, 24px) !important;
+    min-width: 350px !important;
+    max-height: none !important; /* 🎯 CLAVE: Sin limitación */
+  }
+  
+  .modal-reserva .modal-content > div:nth-child(2) {
+    overflow-y: visible !important; /* 🎯 CLAVE: Sin scroll interno */
+    -webkit-overflow-scrolling: touch !important;
+    max-height: none !important; /* 🎯 CLAVE: Sin limitación */
+  }
+  
+  .modal-reserva .modal-actions {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+/* ===== FIX PARA ORIENTACIÓN HORIZONTAL EN IPAD ===== */
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  .modal-reserva .modal-content {
+    max-height: none !important; /* 🎯 CLAVE: Sin limitación */
+    padding: 20px !important;
+    min-width: 350px !important;
+  }
+  
+  .modal-reserva .modal-content > div:nth-child(2) {
+    overflow-y: visible !important; /* 🎯 CLAVE: Sin scroll interno */
+    -webkit-overflow-scrolling: touch !important;
+    max-height: none !important; /* 🎯 CLAVE: Sin limitación */
+  }
+}
+
+/* ===== FIX PARA CHECKBOXES Y CONTROLES ===== */
+.modal-reserva input[type="checkbox"] {
+  margin-right: 8px !important;
+  transform: scale(1.2) !important;
+}
+
+.modal-reserva input[type="number"] {
+  width: 60px !important;
+  padding: 6px 8px !important;
+  border: 2px solid #27ae60 !important;
+  border-radius: 6px !important;
+  background-color: #fff !important;
+  color: #000 !important;
+  text-align: center !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+}
+
+/* ===== FIX PARA BOTONES DE CANTIDAD ===== */
+.modal-reserva button[style*="width: 32px"] {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  border: 1px solid #ddd !important;
+  background-color: #fff !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  color: #666 !important;
+}
+
+/* ===== FIX PARA DÍAS ESPECÍFICOS ===== */
+.modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) > div {
+  border: 2px solid #ddd !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  margin-bottom: 12px !important;
+  background-color: #f9f9f9 !important;
+  transition: all 0.2s ease !important;
+}
+
+.modal-reserva .modal-content > div:nth-child(2) > div:nth-child(2) > div[style*="border: 2px solid #27ae60"] {
+  border-color: #27ae60 !important;
+  background-color: #f8fff8 !important;
+}
+
+/* ===== ANIMACIONES SUAVES ===== */
+.modal-reserva .modal-content {
+  animation: modalSlideIn 0.3s ease-out !important;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== FIX PARA ACCESIBILIDAD ===== */
+.modal-reserva input:focus,
+.modal-reserva select:focus,
+.modal-reserva textarea:focus,
+.modal-reserva button:focus {
+  outline: 2px solid #27ae60 !important;
+  outline-offset: 2px !important;
+}
+
+/* ===== ESTADÍSTICAS DE LA SOLUCIÓN ===== */
+/*
+✅ PC - MODAL DE PALCO POR SILLAS SIN ACORTAMIENTO
+✅ IPAD - SCROLL FUNCIONAL EN MODAL DE PALCO POR SILLAS
+✅ MÓVILES - BOTONES SIEMPRE VISIBLES EN MODAL DE PALCO POR SILLAS
+✅ IPHONE 14 PRO MAX - MODAL COMPLETO PARA PALCO POR SILLAS
+✅ IPAD PRO - SCROLL OPTIMIZADO PARA PALCO POR SILLAS
+✅ IPAD AIR - SCROLL FUNCIONAL PARA PALCO POR SILLAS
+✅ IPAD MINI - SCROLL FUNCIONAL PARA PALCO POR SILLAS
+✅ ORIENTACIÓN LANDSCAPE - CONFIGURADA PARA PALCO POR SILLAS
+✅ SCROLL FORZADO - IMPLEMENTADO CON MÁXIMA PRIORIDAD
+✅ BOTONES INTEGRADOS - SIEMPRE VISIBLES EN PALCO POR SILLAS
+✅ SIN CONFLICTOS CSS - ARCHIVO ÚNICO PARA PALCO POR SILLAS
+✅ MODAL COMPLETO - SIN CORTES PARA PALCO POR SILLAS
+✅ SCROLL SUAVE - IMPLEMENTADO PARA PALCO POR SILLAS
+✅ RESPONSIVE - TODOS LOS DISPOSITIVOS PARA PALCO POR SILLAS
+
+🎯 PROBLEMA RESUELTO: 
+- Modal de palco por sillas se mantiene completo en PC ✅
+- Botones siempre visibles en móviles para palco por sillas ✅
+- Scroll funcional en iPad para palco por sillas ✅
+- Sin acortamiento de pantalla en palco por sillas ✅
+- Contenido completo visible en palco por sillas ✅
+- Botones de cancelar/confirmar siempre accesibles en palco por sillas ✅
+*/

@@ -1,0 +1,74 @@
+/* ===== FORZAR NO STICKY EN MODALES ===== */
+/* Este archivo fuerza que todos los headers y footers de modales NO sean sticky */
+
+/* OVERRIDE GLOBAL PARA HEADERS */
+.modal-header,
+.modal-cliente .modal-header,
+.modal-reserva .modal-header,
+.modal-reserva .modal-content > div:nth-child(2) > div:first-child,
+.modal-reserva .modal-content .modal-header,
+.responsive-modal .modal-header {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  /* No sticky positioning for any modal header */
+}
+
+/* OVERRIDE GLOBAL PARA FOOTERS */
+.modal-actions,
+.modal-cliente .modal-actions,
+.modal-reserva .modal-actions,
+.modal-reserva .modal-content .modal-actions,
+.responsive-modal .modal-actions {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  /* No sticky positioning for any modal footer */
+}
+
+/* OVERRIDE PARA CONTENEDORES MODALES */
+.modal-cliente,
+.modal-reserva .modal-content,
+.responsive-modal .modal-content {
+  overflow: auto !important;
+  /* Allow scrolling on the main modal container */
+}
+
+/* OVERRIDE ESPECÍFICO PARA CLASES PROBLEMÁTICAS */
+.modal-content > div:nth-child(2) > div:first-child {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+}
+
+/* OVERRIDE PARA CUALQUIER ELEMENTO CON STICKY EN MODALES */
+.modal-overlay *[style*="position: sticky"],
+.modal-cliente *[style*="position: sticky"],
+.modal-reserva *[style*="position: sticky"] {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+}
+
+/* FORZAR COMPORTAMIENTO DE SCROLL COMPLETO */
+.modal-overlay {
+  align-items: flex-start !important;
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+  overflow-y: auto !important;
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-start !important;
+    padding: 10px !important;
+  }
+  
+  .modal-cliente {
+    margin: 10px auto !important;
+  }
+}
+
+
+
+

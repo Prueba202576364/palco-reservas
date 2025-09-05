@@ -1,0 +1,623 @@
+/* ===== ESTILOS RESPONSIVOS PARA MODALES ===== */
+/* Sistema completo de responsividad para todos los dispositivos */
+
+/* ===== VARIABLES CSS RESPONSIVAS ===== */
+:root {
+  --modal-padding-xs: 16px;
+  --modal-padding-sm: 20px;
+  --modal-padding-md: 24px;
+  --modal-padding-lg: 32px;
+  --modal-padding-xl: 40px;
+  
+  --modal-border-radius-xs: 8px;
+  --modal-border-radius-sm: 12px;
+  --modal-border-radius-md: 16px;
+  --modal-border-radius-lg: 20px;
+  --modal-border-radius-xl: 24px;
+  
+  --modal-font-size-xs: 14px;
+  --modal-font-size-sm: 16px;
+  --modal-font-size-md: 18px;
+  --modal-font-size-lg: 20px;
+  --modal-font-size-xl: 24px;
+}
+
+/* ===== BREAKPOINTS RESPONSIVOS ===== */
+
+/* Móviles pequeños (320px - 375px) */
+@media (max-width: 375px) {
+  .responsive-modal {
+    --modal-padding: var(--modal-padding-xs);
+    --modal-border-radius: var(--modal-border-radius-xs);
+    --modal-font-size: var(--modal-font-size-xs);
+  }
+  
+  .responsive-modal .modal-content {
+    padding: var(--modal-padding);
+    margin: 8px;
+    border-radius: var(--modal-border-radius);
+  }
+  
+  .responsive-modal .modal-header h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  
+  .responsive-modal .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .responsive-modal .dias-selector {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .responsive-modal .dia-card {
+    padding: 12px;
+  }
+  
+  .responsive-modal .dia-card .cantidad-controls .controles {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .responsive-modal .modal-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .responsive-modal .modal-actions button {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+/* Móviles medianos (376px - 480px) */
+@media (min-width: 376px) and (max-width: 480px) {
+  .responsive-modal {
+    --modal-padding: var(--modal-padding-sm);
+    --modal-border-radius: var(--modal-border-radius-sm);
+    --modal-font-size: var(--modal-font-size-sm);
+  }
+  
+  .responsive-modal .modal-content {
+    padding: var(--modal-padding);
+    margin: 12px;
+    border-radius: var(--modal-border-radius);
+  }
+  
+  .responsive-modal .modal-header h3 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .responsive-modal .form-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  
+  .responsive-modal .dias-selector {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  
+  .responsive-modal .dia-card {
+    padding: 14px;
+  }
+  
+  .responsive-modal .modal-actions {
+    flex-direction: column;
+    gap: 14px;
+  }
+  
+  .responsive-modal .modal-actions button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* Móviles grandes (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .responsive-modal {
+    --modal-padding: var(--modal-padding-md);
+    --modal-border-radius: var(--modal-border-radius-md);
+    --modal-font-size: var(--modal-font-size-md);
+  }
+  
+  .responsive-modal .modal-content {
+    padding: var(--modal-padding);
+    margin: 16px;
+    border-radius: var(--modal-border-radius);
+  }
+  
+  .responsive-modal .modal-header h3 {
+    font-size: 22px;
+    margin-bottom: 18px;
+  }
+  
+  .responsive-modal .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .responsive-modal .dias-selector {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .responsive-modal .dia-card {
+    padding: 16px;
+  }
+  
+  .responsive-modal .modal-actions {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .responsive-modal .modal-actions button {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+/* Tablets (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .responsive-modal {
+    --modal-padding: var(--modal-padding-lg);
+    --modal-border-radius: var(--modal-border-radius-lg);
+    --modal-font-size: var(--modal-font-size-lg);
+  }
+  
+  .responsive-modal .modal-content {
+    padding: var(--modal-padding);
+    margin: 20px;
+    border-radius: var(--modal-border-radius);
+  }
+  
+  .responsive-modal .modal-header h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .responsive-modal .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  
+  .responsive-modal .dias-selector {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .responsive-modal .dia-card {
+    padding: 20px;
+  }
+  
+  .responsive-modal .modal-actions {
+    flex-direction: row;
+    gap: 20px;
+  }
+  
+  .responsive-modal .modal-actions button {
+    width: auto;
+    min-width: 160px;
+  }
+}
+
+/* Desktop (1025px - 1920px) */
+@media (min-width: 1025px) and (max-width: 1920px) {
+  .responsive-modal {
+    --modal-padding: var(--modal-padding-xl);
+    --modal-border-radius: var(--modal-border-radius-xl);
+    --modal-font-size: var(--modal-font-size-xl);
+  }
+  
+  .responsive-modal .modal-content {
+    padding: var(--modal-padding);
+    margin: 24px;
+    border-radius: var(--modal-border-radius);
+  }
+  
+  .responsive-modal .modal-header h3 {
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+  
+  .responsive-modal .form-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+  
+  .responsive-modal .dias-selector {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  
+  .responsive-modal .dia-card {
+    padding: 24px;
+  }
+  
+  .responsive-modal .modal-actions {
+    flex-direction: row;
+    gap: 24px;
+  }
+  
+  .responsive-modal .modal-actions button {
+    width: auto;
+    min-width: 180px;
+  }
+}
+
+/* 4K y pantallas grandes (1921px+) */
+@media (min-width: 1921px) {
+  .responsive-modal {
+    --modal-padding: 48px;
+    --modal-border-radius: 32px;
+    --modal-font-size: 32px;
+  }
+  
+  .responsive-modal .modal-content {
+    padding: var(--modal-padding);
+    margin: 32px;
+    border-radius: var(--modal-border-radius);
+    max-width: 1400px;
+  }
+  
+  .responsive-modal .modal-header h3 {
+    font-size: 36px;
+    margin-bottom: 32px;
+  }
+  
+  .responsive-modal .form-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 36px;
+  }
+  
+  .responsive-modal .dias-selector {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+  
+  .responsive-modal .dia-card {
+    padding: 32px;
+  }
+  
+  .responsive-modal .modal-actions {
+    flex-direction: row;
+    gap: 32px;
+  }
+  
+  .responsive-modal .modal-actions button {
+    width: auto;
+    min-width: 220px;
+    padding: 20px 32px;
+    font-size: 20px;
+  }
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA IPAD ===== */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
+  .responsive-modal .modal-content {
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+  
+  .responsive-modal .dias-selector {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  
+  .responsive-modal .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {
+  .responsive-modal .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .responsive-modal .dias-selector {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  
+  .responsive-modal .form-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA IPHONE ===== */
+@media only screen and (max-device-width: 428px) and (-webkit-min-device-pixel-ratio: 2) {
+  .responsive-modal .modal-content {
+    margin: 8px;
+    border-radius: 16px;
+  }
+  
+  .responsive-modal .modal-header {
+    padding: 16px;
+  }
+  
+  .responsive-modal .modal-header h3 {
+    font-size: 18px;
+  }
+  
+  .responsive-modal .dia-card {
+    padding: 12px;
+  }
+  
+  .responsive-modal .dia-card label {
+    font-size: 16px;
+  }
+  
+  .responsive-modal .dia-card .cantidad-controls .controles {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .responsive-modal .dia-card .cantidad-controls button {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .responsive-modal .dia-card .cantidad-controls input[type="number"] {
+    width: 70px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA GALAXY FOLD ===== */
+@media only screen and (max-device-width: 280px) {
+  .responsive-modal .modal-content {
+    margin: 4px;
+    border-radius: 12px;
+  }
+  
+  .responsive-modal .modal-header {
+    padding: 12px;
+  }
+  
+  .responsive-modal .modal-header h3 {
+    font-size: 16px;
+  }
+  
+  .responsive-modal .dia-card {
+    padding: 8px;
+  }
+  
+  .responsive-modal .dia-card label {
+    font-size: 14px;
+  }
+  
+  .responsive-modal .dia-card .cantidad-controls .controles {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .responsive-modal .dia-card .cantidad-controls button {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  
+  .responsive-modal .dia-card .cantidad-controls input[type="number"] {
+    width: 60px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA PANTALLAS TÁCTILES ===== */
+@media (hover: none) and (pointer: coarse) {
+  .responsive-modal button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .responsive-modal input,
+  .responsive-modal textarea {
+    min-height: 44px;
+    font-size: 16px; /* Previene zoom en iOS */
+  }
+  
+  .responsive-modal .dia-card .cantidad-controls button {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  .responsive-modal .dia-card .cantidad-controls input[type="number"] {
+    min-height: 48px;
+    font-size: 18px;
+  }
+}
+
+/* ===== ESTILOS PARA PANTALLAS DE ALTA DENSIDAD ===== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .responsive-modal .modal-content {
+    border-width: 0.5px;
+  }
+  
+  .responsive-modal .dia-card {
+    border-width: 0.5px;
+  }
+  
+  .responsive-modal input,
+  .responsive-modal textarea {
+    border-width: 0.5px;
+  }
+}
+
+/* ===== ESTILOS PARA PANTALLAS DE BAJA DENSIDAD ===== */
+@media (-webkit-max-device-pixel-ratio: 1), (max-resolution: 96dpi) {
+  .responsive-modal .modal-content {
+    border-width: 2px;
+  }
+  
+  .responsive-modal .dia-card {
+    border-width: 2px;
+  }
+  
+  .responsive-modal input,
+  .responsive-modal textarea {
+    border-width: 2px;
+  }
+}
+
+/* ===== ESTILOS PARA MODO OSCURO (si se implementa) ===== */
+@media (prefers-color-scheme: dark) {
+  .responsive-modal {
+    --modal-bg: #1f2937;
+    --modal-text: #f9fafb;
+    --modal-border: #374151;
+    --modal-input-bg: #374151;
+    --modal-input-text: #f9fafb;
+  }
+}
+
+/* ===== ESTILOS PARA REDUCIR MOVIMIENTO ===== */
+@media (prefers-reduced-motion: reduce) {
+  .responsive-modal * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== ESTILOS PARA IMPRESIÓN ===== */
+@media print {
+  .responsive-modal {
+    position: static !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+  
+  .responsive-modal .modal-content {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .responsive-modal .modal-actions {
+    display: none !important;
+  }
+}
+
+/* ===== ESTILOS PARA ACCESIBILIDAD ===== */
+.responsive-modal button:focus,
+.responsive-modal input:focus,
+.responsive-modal textarea:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.responsive-modal button:focus-visible,
+.responsive-modal input:focus-visible,
+.responsive-modal textarea:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* ===== ESTILOS PARA SCROLL SUAVE ===== */
+.responsive-modal .modal-content {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===== ESTILOS PARA SCROLLBAR PERSONALIZADO ===== */
+.responsive-modal .modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.responsive-modal .modal-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.responsive-modal .modal-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.responsive-modal .modal-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ===== ESTILOS PARA ESTADOS DE CARGA ===== */
+.responsive-modal .loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.responsive-modal .loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== ESTILOS PARA ESTADOS DE ERROR ===== */
+.responsive-modal .error {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+.responsive-modal .error-message {
+  color: #dc2626;
+  font-size: 14px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ===== ESTILOS PARA ESTADOS DE ÉXITO ===== */
+.responsive-modal .success {
+  border-color: #10b981 !important;
+  background-color: #f0fdf4 !important;
+}
+
+.responsive-modal .success-message {
+  color: #059669;
+  font-size: 14px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ===== ESTILOS PARA ESTADOS DE ADVERTENCIA ===== */
+.responsive-modal .warning {
+  border-color: #f59e0b !important;
+  background-color: #fffbeb !important;
+}
+
+.responsive-modal .warning-message {
+  color: #d97706;
+  font-size: 14px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+

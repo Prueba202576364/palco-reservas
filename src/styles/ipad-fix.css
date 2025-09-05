@@ -1,0 +1,97 @@
+/* ===== FIX CORRECTO PARA IPADS - PAGINACIÓN EN MISMO CONTENEDOR ===== */
+
+/* Fix principal para iPads - SOLO PARA IPAD MINI */
+@media (min-width: 768px) and (max-width: 810px) {
+  html, body {
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .app-container {
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .header-container {
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background: white !important;
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  .main-content {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 20px !important;
+  }
+
+  .mapa-container {
+    margin-bottom: 20px !important;
+  }
+
+  .controls-container {
+    position: sticky !important;
+    bottom: 0 !important;
+    background: white !important;
+    border-top: 1px solid #e5e7eb !important;
+    padding: 15px 20px !important;
+    z-index: 999 !important;
+  }
+
+  .pagination-container {
+    margin-top: 15px !important;
+  }
+}
+
+/* Fix para iPad Air y iPad Pro */
+@media (min-width: 811px) and (max-width: 1024px) {
+  .app-container {
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .main-content {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 20px !important;
+  }
+
+  .controls-container {
+    position: sticky !important;
+    bottom: 0 !important;
+    background: white !important;
+    border-top: 1px solid #e5e7eb !important;
+    padding: 15px 20px !important;
+  }
+}
+
+/* Fix para modal en iPad */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .modal-reserva {
+    padding: 20px !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  .modal-content {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  .modal-body {
+    padding: 20px !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+}
+
+
+

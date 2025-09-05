@@ -1,0 +1,90 @@
+¡Perfecto! Veo que estás probando en un **iPhone XR (414x896)**. Te voy a mostrar exactamente cómo editar manualmente el scroll para este dispositivo específico.
+
+## 🎯 **EDITAR SCROLL PARA IPHONE XR (414x896)**
+
+### **1. 📍 Ubicación del CSS**
+
+El CSS para iPhone XR está en el archivo `palco-reservas/src/App.css`. Necesitas agregar un breakpoint específico para este dispositivo.
+
+### **2. �� Agregar Breakpoint Específico**
+
+Abre el archivo `palco-reservas/src/App.css` y agrega este código después de los otros breakpoints de iPhone:
+
+## 🎯 **CÓMO EDITAR MANUALMENTE EL SCROLL**
+
+### **📍 Línea Específica para Editar**
+
+En el código que agregué, la línea clave es:
+
+```css
+padding: 20px 15px 150px 15px; /* AQUÍ PUEDES AJUSTAR EL SCROLL */
+```
+
+### **�� Valores que Puedes Cambiar**
+
+#### **Estructura del Padding:**
+```css
+padding: [TOP] [RIGHT] [BOTTOM] [LEFT];
+```
+
+#### **Para Más Scroll - Aumenta el Tercer Valor:**
+- ✅ **150px** → **200px** (más scroll)
+- ✅ **150px** → **250px** (mucho más scroll)
+- ✅ **150px** → **300px** (scroll masivo)
+
+#### **Ejemplos de Ajustes:**
+
+**Scroll Moderado:**
+```css
+padding: 20px 15px 180px 15px;
+```
+
+**Scroll Generoso:**
+```css
+padding: 20px 15px 250px 15px;
+```
+
+**Scroll Masivo:**
+```css
+padding: 20px 15px 350px 15px;
+```
+
+### **📱 Otros Ajustes que Puedes Hacer**
+
+#### **1. Altura Máxima del Modal:**
+```css
+max-height: 100vh; /* Puedes cambiar a 95vh, 90vh, etc. */
+```
+
+#### **2. Espaciado de Botones:**
+```css
+.modal-actions {
+  margin-top: 22px; /* Aumenta para más espacio */
+  gap: 12px; /* Aumenta para separar más los botones */
+}
+```
+
+#### **3. Espaciado de Inputs:**
+```css
+.modal-content input[type="text"] {
+  margin-bottom: 10px; /* Aumenta para más separación */
+}
+```
+
+### **🎯 Pasos para Editar:**
+
+1. **Abre** `palco-reservas/src/App.css`
+2. **Busca** la línea: `/* ===== 13. IPHONE XR (414x896) ===== */`
+3. **Edita** la línea: `padding: 20px 15px 150px 15px;`
+4. **Cambia** el tercer valor (150px) por el que quieras
+5. **Guarda** el archivo
+6. **Recarga** la página para ver los cambios
+
+### **💡 Consejos:**
+
+- **Para más scroll**: Aumenta el tercer valor del padding
+- **Para menos scroll**: Disminuye el tercer valor del padding
+- **Prueba valores** como 200px, 250px, 300px
+- **Guarda y recarga** después de cada cambio
+
+¡Ahora puedes editar manualmente el scroll específicamente para tu iPhone XR! 🎯

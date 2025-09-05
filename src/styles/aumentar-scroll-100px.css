@@ -1,0 +1,61 @@
+/* ===== AUMENTAR SCROLL DEL MODAL EN 100PX - PARA PRUEBAS ===== */
+
+.modal-reserva {
+  padding-bottom: 100px !important;
+}
+
+.modal-content {
+  margin-bottom: 100px !important;
+}
+
+.modal-body {
+  padding-bottom: 100px !important;
+}
+
+/* ===== FIX PARA MÓVILES ===== */
+@media (max-width: 767px) {
+  .modal-reserva {
+    padding-bottom: 100px !important;
+  }
+
+  .modal-content {
+    margin-bottom: 100px !important;
+  }
+
+  .modal-body {
+    padding-bottom: 100px !important;
+  }
+}
+
+/* ===== FIX PARA IPAD ===== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .modal-reserva {
+    padding-bottom: 100px !important;
+  }
+
+  .modal-content {
+    margin-bottom: 100px !important;
+  }
+
+  .modal-body {
+    padding-bottom: 100px !important;
+  }
+}
+
+/* ===== FIX PARA DESKTOP ===== */
+@media (min-width: 1025px) {
+  .modal-reserva {
+    padding-bottom: 100px !important;
+  }
+
+  .modal-content {
+    margin-bottom: 100px !important;
+  }
+
+  .modal-body {
+    padding-bottom: 100px !important;
+  }
+}
+
+
+

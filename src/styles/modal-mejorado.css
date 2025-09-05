@@ -1,0 +1,1548 @@
+/* ===== MODAL DE RESERVA MEJORADO Y OPTIMIZADO ===== */
+/* Archivo CSS único y definitivo para el modal de reserva */
+
+/* ===== RESET Y BASE DEL MODAL ===== */
+.modal-reserva {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+  padding: 0 !important;
+  /* 🚀 SCROLL COMPLETO Y FUNCIONAL */
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* ===== CONTENIDO PRINCIPAL DEL MODAL ===== */
+.modal-reserva .modal-content {
+  background: transparent !important;
+  padding: 0 !important;
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  /* 🚀 SCROLL COMPLETO Y FUNCIONAL */
+  overflow: auto !important;
+}
+
+/* ===== ANIMACIÓN DE ENTRADA ===== */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== CONTENEDOR UNIFICADO - SCROLL PRINCIPAL ===== */
+.modal-reserva .modal-container-unificado {
+  background: #ec8181 !important;
+  border-radius: 0px !important;
+  /* SCROLL PRINCIPAL OPTIMIZADO */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  /* ALTURA DINÁMICA PARA CADA DISPOSITIVO */
+  height: 100vh !important;
+  max-height: 100vh !important;
+  width: 100% !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  padding: 0 !important; /* SIN MARGEN ALREDEDOR */
+  box-sizing: border-box !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  /* SCROLL SUAVE */
+  scroll-behavior: smooth !important;
+}
+
+/* ===== HEADER DEL MODAL - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .modal-header {
+  background: linear-gradient(135deg, #F5F1EB 0%, #8B4513 100%) !important; /* GRADIENTE CREMA A MARRÓN MADERA */
+  border-bottom: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  border-radius: 0 !important;
+  padding: 16px !important;
+  text-align: center !important;
+  position: relative !important;
+  flex-shrink: 0 !important;
+  /* NUEVO: ANCHO MÁXIMO Y SIN MARGEN SUPERIOR */
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 0 auto 16px auto !important;
+}
+
+.modal-reserva .modal-header h3 {
+  margin: 0 0 12px 0 !important;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: #C4302B !important; /* ROJO PRINCIPAL DE LA FERIA */
+  text-shadow: 0 2px 4px rgba(196, 48, 43, 0.1) !important;
+}
+
+.modal-reserva .modal-header .palco-seleccionado {
+  display: inline-block !important;
+  background: #FFFFFF !important; /* FONDO BLANCO */
+  border: 2px solid #D97706 !important; /* BORDE DORADO */
+  border-radius: 25px !important;
+  padding: 8px 16px !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #D97706 !important; /* TEXTO DORADO */
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15) !important;
+}
+
+/* ===== HOVER DEL HEADER - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .modal-header:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(139, 69, 19, 0.1) !important; /* SOMBRA MARRÓN MADERA */
+}
+
+/* ===== CUERPO DEL MODAL ===== */
+.modal-reserva .modal-body {
+  flex: 1 !important;
+  padding: 20px !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #cbd5e0 #f7fafc !important;
+  /* NUEVO: ANCHO MÁXIMO Y CENTRADO */
+  width: 100% !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+}
+
+/* ===== SCROLLBAR PERSONALIZADO ===== */
+.modal-reserva .modal-body::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.modal-reserva .modal-body::-webkit-scrollbar-track {
+  background: #f7fafc !important;
+  border-radius: 4px !important;
+}
+
+.modal-reserva .modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e0 !important;
+  border-radius: 4px !important;
+  transition: background 0.2s ease !important;
+}
+
+.modal-reserva .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0 !important;
+}
+
+/* ===== INFORMACIÓN DEL PALCO ===== */
+.modal-reserva .palco-info {
+  background: linear-gradient(135deg, #F5F1EB 0%, #8B4513 100%) !important; /* GRADIENTE CREMA A MARRÓN MADERA */
+  border: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  border-radius: 16px !important;
+  padding: 20px !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.05) !important;
+  transition: all 0.3s ease !important;
+  /* NUEVO: ANCHO MÁXIMO Y CENTRADO */
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 0 auto 20px auto !important;
+}
+
+/* ===== HOVER DE INFORMACIÓN DEL PALCO - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .palco-info:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(139, 69, 19, 0.1) !important; /* SOMBRA MARRÓN MADERA */
+}
+
+/* ===== OCULTAR TEXTO DESCRIPTIVO DEL PALCO POR SILLAS ===== */
+/* Ocultar por posición específica en el DOM */
+.modal-reserva .palco-info > div:nth-child(2) {
+  display: none !important;
+}
+
+/* Ocultar por estilo específico */
+.modal-reserva div[style*="fontSize: '14px'"] {
+  display: none !important;
+}
+
+/* Ocultar por color específico */
+.modal-reserva div[style*="color: '#6c757d'"] {
+  display: none !important;
+}
+
+/* ===== CONFIGURACIÓN DE RESERVA - ESTRUCTURA RESTAURADA ===== */
+.modal-reserva .reserva-config {
+  margin-bottom: 24px !important;
+  /* NUEVO: ANCHO MÁXIMO Y CENTRADO */
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 0 auto 24px auto !important;
+}
+
+/* ===== CONFIGURACIÓN DE RESERVA - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .reserva-config .modo-avanzado {
+  background: linear-gradient(135deg, #D97706 0%, #F5F1EB 100%) !important; /* GRADIENTE DORADO A CREMA */
+  border: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  border-radius: 16px !important;
+  padding: 16px !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 16px rgba(139, 69, 19, 0.15) !important;
+}
+
+.modal-reserva .reserva-config .modo-avanzado div:first-child {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+  margin-bottom: 8px !important;
+}
+
+.modal-reserva .reserva-config .modo-avanzado div:last-child {
+  font-size: 14px !important;
+  color: #8B4513 !important; /* MARRÓN MADERA DE LA FERIA */
+}
+
+/* ===== HOVER DEL MODO AVANZADO - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .reserva-config .modo-avanzado:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(139, 69, 19, 0.2) !important; /* SOMBRA MARRÓN MADERA */
+}
+
+/* ===== SELECTOR DE DÍAS ===== */
+.modal-reserva .dias-selector {
+  margin-bottom: 24px !important;
+  /* NUEVO: ORGANIZAR VERTICALMENTE */
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  width: 100% !important;
+  max-width: 800px !important;
+  margin: 0 auto 24px auto !important;
+}
+
+.modal-reserva .dia-card {
+  border: 2px solid #dee2e6 !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+  margin-bottom: 16px !important;
+  background: #ffffff !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+  /* NUEVO: ANCHO COMPLETO */
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* ===== TARJETAS DE DÍAS - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .dia-card.activo {
+  border-color: #8B4513 !important; /* BORDE MARRÓN MADERA CUANDO ACTIVO */
+  background: linear-gradient(135deg, #F5F1EB 0%, #8B4513 100%) !important; /* GRADIENTE CREMA A MARRÓN MADERA */
+  box-shadow: 0 8px 24px rgba(139, 69, 19, 0.15) !important;
+  transform: translateY(-2px) !important;
+}
+
+.modal-reserva .dia-card.activo label {
+  color: #8B4513 !important; /* MARRÓN MADERA DE LA FERIA */
+}
+
+.modal-reserva .dia-card.disabled {
+  opacity: 0.6 !important;
+  background: #f8f9fa !important;
+}
+
+/* ===== HOVER DE TARJETAS - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .dia-card:hover:not(.disabled) {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(139, 69, 19, 0.1) !important; /* SOMBRA MARRÓN MADERA */
+}
+
+/* ===== CHECKBOXES Y LABELS ===== */
+.modal-reserva .dia-card input[type="checkbox"] {
+  transform: scale(1.5) !important;
+  accent-color: #8B4513 !important; /* MARRÓN MADERA DE LA FERIA */
+  margin-right: 16px !important;
+}
+
+/* ===== LABEL DEL DÍA - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .dia-card label {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+  cursor: pointer !important;
+  text-transform: capitalize !important;
+  transition: color 0.2s ease !important;
+}
+
+.modal-reserva .dia-card.activo label {
+  color: #27ae60 !important;
+}
+
+.modal-reserva .dia-card.disabled label {
+  color: #6c757d !important;
+  cursor: not-allowed !important;
+}
+
+/* ===== INFORMACIÓN DE PRECIO ===== */
+.modal-reserva .dia-card .precio-info {
+  margin-top: 16px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+/* ===== SILLAS LIBRES - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .dia-card .precio-info .sillas-libres {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+}
+
+/* ===== PRECIO DE SILLAS - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .dia-card .precio-info .precio-silla {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #D97706 !important; /* DORADO DE LA FERIA */
+  background: #F5F1EB !important; /* FONDO CREMA */
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+}
+
+/* ===== CONTROLES DE CANTIDAD ===== */
+.modal-reserva .dia-card .cantidad-controls {
+  margin-top: 20px !important;
+  padding: 16px !important;
+  background: #F5F1EB !important; /* FONDO CREMA DE LA FERIA */
+  border-radius: 12px !important;
+  border: 1px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+}
+
+/* ===== LABELS DE CONTROLES - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .dia-card .cantidad-controls label {
+  display: block !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+  margin-bottom: 12px !important;
+  text-align: center !important;
+}
+
+.modal-reserva .dia-card .cantidad-controls .controles {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  margin-bottom: 16px !important;
+}
+
+/* ===== CONTROLES DE CANTIDAD - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .dia-card .cantidad-controls button {
+  width: 40px !important;
+  height: 40px !important;
+  border: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  background: #FFFFFF !important;
+  color: #8B4513 !important; /* TEXTO MARRÓN MADERA */
+  border-radius: 50% !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.modal-reserva .dia-card .cantidad-controls button:hover:not(:disabled) {
+  background: #8B4513 !important; /* FONDO MARRÓN MADERA AL HOVER */
+  color: #FFFFFF !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3) !important;
+}
+
+.modal-reserva .dia-card .cantidad-controls button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  border-color: #6c757d !important;
+  color: #6c757d !important;
+}
+
+.modal-reserva .dia-card .cantidad-controls input[type="number"] {
+  width: 80px !important;
+  height: 40px !important;
+  border: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  border-radius: 8px !important;
+  text-align: center !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+  background: #FFFFFF !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.modal-reserva .dia-card .cantidad-controls input[type="number"]:focus {
+  border-color: #451A03 !important; /* MARRÓN OSCURO AL FOCUS */
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1) !important;
+}
+
+.modal-reserva .dia-card .cantidad-controls input[type="number"]::-webkit-inner-spin-button,
+.modal-reserva .dia-card .cantidad-controls input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* ===== SUBTOTAL DEL DÍA - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .dia-card .subtotal-dia {
+  text-align: center !important;
+  padding: 12px !important;
+  background: linear-gradient(135deg, #F5F1EB 0%, #8B4513 100%) !important; /* GRADIENTE CREMA A MARRÓN MADERA */
+  border-radius: 8px !important;
+  border: 1px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+}
+
+.modal-reserva .dia-card .subtotal-dia .subtotal-texto {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+}
+
+/* ===== RESUMEN TOTAL - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .resumen-total {
+  background: linear-gradient(135deg, #F5F1EB 0%, #8B4513 100%) !important; /* GRADIENTE CREMA A MARRÓN MADERA */
+  border: 3px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  border-radius: 20px !important;
+  padding: 24px !important;
+  margin: 24px 0 !important;
+  text-align: center !important;
+  box-shadow: 0 8px 32px rgba(139, 69, 19, 0.2) !important;
+  /* NUEVO: ANCHO MÁXIMO Y CENTRADO */
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 24px auto !important;
+}
+
+/* ===== HOVER DEL RESUMEN TOTAL - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .resumen-total:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 40px rgba(139, 69, 19, 0.25) !important; /* SOMBRA MARRÓN MADERA */
+}
+
+.modal-reserva .resumen-total .total-titulo {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+  margin-bottom: 16px !important;
+}
+
+.modal-reserva .resumen-total .total-monto {
+  font-size: 32px !important;
+  font-weight: 800 !important;
+  color: #D97706 !important; /* DORADO DE LA FERIA */
+  margin-bottom: 20px !important;
+  text-shadow: 0 2px 4px rgba(217, 119, 6, 0.1) !important;
+}
+
+.modal-reserva .resumen-total .resumen-detalle {
+  font-size: 14px !important;
+  color: #6c757d !important;
+  line-height: 1.6 !important;
+}
+
+/* ===== FORMULARIO DEL CLIENTE - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .cliente-form {
+  background: #F5F1EB !important; /* FONDO CREMA DE LA FERIA */
+  border: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  border-radius: 16px !important;
+  padding: 24px !important;
+  margin: 24px 0 !important;
+  /* NUEVO: ANCHO MÁXIMO Y CENTRADO */
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 24px auto !important;
+}
+
+.modal-reserva .cliente-form h4 {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+  margin: 0 0 20px 0 !important;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.modal-reserva .cliente-form .form-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 20px !important;
+}
+
+/* ===== LABELS DEL FORMULARIO - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .cliente-form label {
+  display: block !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+  margin-bottom: 0px !important;
+}
+
+/* ===== INPUTS DEL FORMULARIO - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .cliente-form input {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  border: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  color: hsl(60, 4%, 5%) !important; /* MARRÓN OSCURO DE LA FERIA */
+  background: #FFFFFF !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.modal-reserva .cliente-form input:focus {
+  outline: none !important;
+  border-color: #D97706 !important; /* BORDE DORADO AL FOCUS */
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1) !important;
+}
+
+.modal-reserva .cliente-form input::placeholder {
+  color: #8B4513 !important; /* MARRÓN MADERA PARA PLACEHOLDER */
+}
+
+.modal-reserva .cliente-form input::placeholder {
+  color: #adb5bd !important;
+}
+
+/* ===== HOVER DEL FORMULARIO - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .cliente-form:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(139, 69, 19, 0.1) !important; /* SOMBRA MARRÓN MADERA */
+}
+
+/* ===== MENSAJE DE ERROR - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .cliente-form .error-mensaje {
+  color: #C4302B !important; /* ROJO PRINCIPAL DE LA FERIA */
+  font-size: 14px !important;
+  margin-top: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* ===== RESERVAS EXISTENTES - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .reservas-existentes {
+  background: #F5F1EB !important; /* FONDO CREMA DE LA FERIA */
+  border: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  border-radius: 16px !important;
+  padding: 20px !important;
+  margin: 20px 0 !important;
+  /* NUEVO: ANCHO MÁXIMO Y CENTRADO */
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 20px auto !important;
+}
+
+.modal-reserva .reservas-existentes h4 {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #451A03 !important; /* MARRÓN OSCURO DE LA FERIA */
+  margin: 0 0 16px 0 !important;
+  text-align: center !important;
+}
+
+.modal-reserva .reservas-existentes h5 {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #6c757d !important;
+  margin: 16px 0 8px 0 !important;
+  text-transform: capitalize !important;
+}
+
+/* ===== HOVER DE RESERVAS EXISTENTES - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .reservas-existentes:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(139, 69, 19, 0.1) !important; /* SOMBRA MARRÓN MADERA */
+}
+
+/* ===== BOTONES DE ACCIÓN - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .modal-actions .btn-cancelar {
+  background: transparent !important;
+  color: #8B4513 !important; /* MARRÓN MADERA DE LA FERIA */
+  border: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  border-radius: 12px !important;
+  padding: 16px 28px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  min-width: 140px !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+}
+
+.modal-reserva .modal-actions .btn-cancelar:hover {
+  background: #8B4513 !important; /* FONDO MARRÓN MADERA AL HOVER */
+  color: #FFFFFF !important; /* TEXTO BLANCO AL HOVER */
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.2) !important;
+}
+
+.modal-reserva .modal-actions .btn-confirmar {
+  background: #16A34A !important; /* VERDE DE LA FERIA */
+  color: #FFFFFF !important;
+  border: 2px solid #16A34A !important; /* BORDE VERDE DE LA FERIA */
+  border-radius: 12px !important;
+  padding: 16px 28px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  min-width: 220px !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+}
+
+.modal-reserva .modal-actions .btn-confirmar:hover:not(:disabled) {
+  background: #15803D !important; /* VERDE MÁS OSCURO AL HOVER */
+  border-color: #15803D !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3) !important;
+}
+
+.modal-reserva .modal-actions .btn-confirmar:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ===== MENSAJE DE INFORMACIÓN - ADAPTADO A PALETA DE LA FERIA ===== */
+.modal-reserva .modal-actions .mensaje-info {
+  color: #8B4513 !important; /* MARRÓN MADERA DE LA FERIA */
+  font-size: 15px !important;
+  font-style: italic !important;
+  text-align: center !important;
+  padding: 16px !important;
+  background: #F5F1EB !important; /* FONDO CREMA */
+  border-radius: 12px !important;
+  border: 1px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  width: 100% !important;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .modal-reserva {
+    padding: 10px !important;
+    align-items: flex-start !important;
+  }
+  
+  .modal-reserva .modal-content {
+    margin: 20px 0 !important;
+    min-width: 300px !important;
+  }
+  
+  .modal-reserva .modal-container-unificado {
+    max-height: calc(100vh - 40px) !important;
+  }
+  
+  .modal-reserva .modal-header {
+    padding: 16px !important;
+  }
+  
+  .modal-reserva .modal-header h3 {
+    font-size: 22px !important;
+  }
+  
+  .modal-reserva .modal-body {
+    padding: 16px !important;
+  }
+  
+  .modal-reserva .modal-actions {
+    padding: 16px !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  
+  .modal-reserva .modal-actions .btn-cancelar,
+  .modal-reserva .modal-actions .btn-confirmar {
+    width: 100% !important;
+    min-width: auto !important;
+  }
+  
+  .modal-reserva .cliente-form {
+    padding: 16px !important;
+  }
+  
+  .modal-reserva .dia-card {
+    padding: 16px !important;
+  }
+  
+  .modal-reserva .dia-card .cantidad-controls .controles {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-reserva .modal-content {
+    min-width: 280px !important;
+  }
+  
+  .modal-reserva .modal-container-unificado {
+    max-height: 95vh !important;
+    border-radius: 16px !important;
+  }
+  
+  .modal-reserva .modal-header {
+    padding: 14px !important;
+  }
+  
+  .modal-reserva .modal-header h3 {
+    font-size: 18px !important;
+  }
+  
+  .modal-reserva .modal-body {
+    padding: 14px !important;
+  }
+  
+  .modal-reserva .cliente-form {
+    padding: 14px !important;
+  }
+  
+  .modal-reserva .dia-card {
+    padding: 14px !important;
+  }
+  
+  .modal-reserva .modal-actions {
+    padding: 14px !important;
+  }
+}
+
+/* ===== ESTADOS ESPECIALES ===== */
+.modal-reserva .dia-card .dia-no-disponible {
+  font-size: 14px !important;
+  color: #e74c3c !important;
+  font-style: italic !important;
+  margin-top: 16px !important;
+  text-align: center !important;
+  padding: 12px !important;
+  background: #fdf2f2 !important;
+  border-radius: 8px !important;
+  border: 1px solid #fecaca !important;
+}
+
+/* ===== EFECTOS DE HOVER Y FOCUS ===== */
+.modal-reserva .dia-card:focus-within {
+  outline: 2px solid #27ae60 !important;
+  outline-offset: 2px !important;
+}
+
+.modal-reserva .cliente-form input:focus {
+  outline: 2px solid #27ae60 !important;
+  outline-offset: 2px !important;
+}
+
+/* ===== ACCESIBILIDAD ===== */
+@media (prefers-reduced-motion: reduce) {
+  .modal-reserva .modal-content,
+  .modal-reserva .dia-card,
+  .modal-reserva .cliente-form input,
+  .modal-reserva .modal-actions button {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* ===== IMPRESIÓN ===== */
+@media print {
+  .modal-reserva {
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+  }
+  
+  .modal-reserva .modal-content {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .modal-reserva .modal-actions {
+    display: none !important;
+  }
+}
+
+/* ===== FORZAR MODAL DE PANTALLA COMPLETA - PRIORIDAD MÁXIMA ===== */
+.modal-reserva {
+  padding: 0 !important;
+  padding: 0 !important;
+  padding: 0 !important;
+}
+
+.modal-reserva .modal-content {
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.modal-reserva .modal-container-unificado {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+/* ===== ESTILOS ULTRA-ESPECÍFICOS PARA FORZAR PANTALLA COMPLETA ===== */
+/* Usar selectores más específicos para mayor prioridad */
+html body .modal-reserva {
+  padding: 0 !important;
+  padding: 0 !important;
+  padding: 0 !important;
+}
+
+html body .modal-reserva .modal-content {
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+html body .modal-reserva .modal-container-unificado {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+/* ===== FORZAR ESTILOS INLINE CON CSS ===== */
+/* Usar !important múltiples veces para mayor prioridad */
+.modal-reserva {
+  padding: 0 !important;
+  padding: 0 !important;
+  padding: 0 !important;
+  padding: 0 !important;
+  padding: 0 !important;
+}
+
+.modal-reserva .modal-content {
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.modal-reserva .modal-container-unificado {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA IPAD ===== */
+/* Asegurar que funcione correctamente en iPad */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+  .modal-reserva {
+    padding: 0 !important;
+    padding: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .modal-reserva .modal-content {
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+  
+  .modal-reserva .modal-container-unificado {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA MÓVILES ===== */
+/* Asegurar que funcione correctamente en móviles */
+@media only screen and (max-width: 767px) {
+  .modal-reserva {
+    padding: 0 !important;
+    padding: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .modal-reserva .modal-content {
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+  
+  .modal-reserva .modal-container-unificado {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* ===== ESTILOS RESPONSIVOS COMPLETOS ===== */
+
+/* ===== PC (Desktop) - Pantalla completa con diseño bonito ===== */
+@media only screen and (min-width: 1025px) {
+  .modal-reserva .modal-content {
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+  
+  .modal-reserva .modal-container-unificado {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important; /* SIN MARGEN */
+    box-sizing: border-box !important;
+  }
+  
+  .modal-reserva .cliente-form .form-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  
+  .modal-reserva .dias-selector {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+}
+
+/* ===== TABLET (iPad) - Diseño optimizado ===== */
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+  .modal-reserva .modal-content {
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+  
+  .modal-reserva .modal-container-unificado {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important; /* SIN MARGEN */
+    box-sizing: border-box !important;
+  }
+  
+  .modal-reserva .cliente-form .form-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .modal-reserva .dias-selector {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+  
+  .modal-reserva .modal-header h3 {
+    font-size: 24px !important;
+  }
+  
+  .modal-reserva .dia-card {
+    padding: 16px !important;
+  }
+}
+
+/* ===== MÓVIL - Diseño optimizado ===== */
+@media only screen and (max-width: 767px) {
+  .modal-reserva .modal-content {
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+  
+  .modal-reserva .modal-container-unificado {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+  }
+  
+  .modal-reserva .cliente-form .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  
+  .modal-reserva .dias-selector {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .modal-reserva .modal-header h3 {
+    font-size: 20px !important;
+  }
+  
+  .modal-reserva .dia-card {
+    padding: 12px !important;
+  }
+  
+  .modal-reserva .dia-card .cantidad-controls .controles {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .modal-reserva .modal-actions {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .modal-reserva .modal-actions .btn-cancelar,
+  .modal-reserva .modal-actions .btn-confirmar {
+    width: 100% !important;
+    min-width: auto !important;
+  }
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA IPAD PRO ===== */
+@media only screen and (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  .modal-reserva .modal-container-unificado {
+    padding: 40px !important;
+  }
+  
+  .modal-reserva .cliente-form .form-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA IPHONE ===== */
+@media only screen and (max-width: 375px) {
+  .modal-reserva .modal-container-unificado {
+    padding: 16px !important;
+  }
+  
+  .modal-reserva .modal-header h3 {
+    font-size: 18px !important;
+  }
+  
+  .modal-reserva .dia-card {
+    padding: 10px !important;
+  }
+  
+  .modal-reserva .dia-card label {
+    font-size: 16px !important;
+  }
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA GALAXY FOLD ===== */
+@media only screen and (max-width: 280px) {
+  .modal-reserva .modal-container-unificado {
+    padding: 12px !important;
+  }
+  
+  .modal-reserva .modal-header h3 {
+    font-size: 16px !important;
+  }
+  
+  .modal-reserva .dia-card {
+    padding: 8px !important;
+  }
+  
+  .modal-reserva .dia-card label {
+    font-size: 14px !important;
+  }
+}
+
+/* ===== FORZAR LAYOUT VERTICAL COMPLETO ===== */
+.modal-reserva .modal-container-unificado {
+  background: #ffffff !important;
+  border-radius: 0px !important;
+  overflow-y: auto !important;
+  max-height: 100vh !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  padding: 0 !important; /* SIN MARGEN */
+  box-sizing: border-box !important;
+  /* FORZAR VERTICAL Y CENTRADO */
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+/* ===== FORZAR ANCHO MÁXIMO EN TODOS LOS ELEMENTOS ===== */
+.modal-reserva .modal-header,
+.modal-reserva .modal-body,
+.modal-reserva .palco-info,
+.modal-reserva .reserva-config,
+.modal-reserva .dias-selector,
+.modal-reserva .dia-card,
+.modal-reserva .resumen-total,
+.modal-reserva .cliente-form,
+.modal-reserva .reservas-existentes,
+.modal-reserva .modal-actions {
+  width: 100% !important;
+  max-width: 600px !important; /* REDUCIR DE 800px A 600px */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* ===== FORZAR TARJETAS DE DÍAS EN VERTICAL ===== */
+.modal-reserva .dias-selector {
+  display: flex !important;
+  flex-direction: column !important; /* FORZAR VERTICAL */
+  gap: 16px !important;
+  margin-bottom: 24px !important;
+}
+
+.modal-reserva .dia-card {
+  width: 100% !important; /* ANCHO COMPLETO */
+  max-width: 600px !important; /* MÁXIMO ANCHO */
+  margin: 0 auto 16px auto !important;
+  box-sizing: border-box !important;
+  /* FORZAR CONTENIDO INTERNO VERTICAL */
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* ===== FORZAR FORMULARIO EN UNA SOLA COLUMNA ===== */
+.modal-reserva .cliente-form .form-grid {
+  display: flex !important;
+  flex-direction: column !important; /* FORZAR VERTICAL */
+  gap: 20px !important;
+}
+
+.modal-reserva .cliente-form .form-grid > div {
+  width: 100% !important;
+  max-width: 600px !important;
+}
+
+/* ===== FORZAR BOTONES EN VERTICAL EN MÓVILES ===== */
+@media (max-width: 768px) {
+  .modal-reserva .modal-actions {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  
+  .modal-reserva .modal-actions .btn-cancelar,
+  .modal-reserva .modal-actions .btn-confirmar {
+    width: 100% !important;
+    max-width: 300px !important;
+  }
+}
+
+/* ===== FORZAR SCROLL HORIZONTAL ===== */
+.modal-reserva .modal-container-unificado {
+  overflow-x: hidden !important; /* BLOQUEAR SCROLL HORIZONTAL */
+}
+
+.modal-reserva .modal-body {
+  overflow-x: hidden !important; /* BLOQUEAR SCROLL HORIZONTAL */
+}
+
+/* ===== FORZAR ANCHO MÁXIMO EN INPUTS ===== */
+.modal-reserva .cliente-form input {
+  width: 100% !important;
+  max-width: 600px !important;
+  box-sizing: border-box !important;
+}
+
+/* ===== FORZAR ANCHO MÁXIMO EN CONTROLES DE CANTIDAD ===== */
+.modal-reserva .dia-card .cantidad-controls {
+  width: 100% !important;
+  max-width: 600px !important;
+  box-sizing: border-box !important;
+}
+
+/* ===== FORZAR ANCHO MÁXIMO EN RESUMEN ===== */
+.modal-reserva .resumen-total {
+  width: 100% !important;
+  max-width: 600px !important;
+  box-sizing: border-box !important;
+}
+
+/* ===== SISTEMA DE SCROLL OPTIMIZADO PARA TODOS LOS DISPOSITIVOS ===== */
+
+/* ===== RESET Y BASE DEL MODAL ===== */
+.modal-reserva {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+  padding: 0 !important;
+  /* 🚀 SCROLL COMPLETO Y FUNCIONAL */
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* ===== CONTENIDO PRINCIPAL DEL MODAL ===== */
+.modal-reserva .modal-content {
+  background: transparent !important;
+  padding: 0 !important;
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  /* 🚀 SCROLL COMPLETO Y FUNCIONAL */
+  overflow: auto !important;
+}
+
+/* ===== CONTENEDOR UNIFICADO - SCROLL PRINCIPAL ===== */
+.modal-reserva .modal-container-unificado {
+  background: #ffffff !important;
+  border-radius: 0px !important;
+  /* SCROLL PRINCIPAL OPTIMIZADO */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  /* ALTURA DINÁMICA PARA CADA DISPOSITIVO */
+  height: 100vh !important;
+  max-height: 100vh !important;
+  width: 100% !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  padding: 0 !important; /* SIN MARGEN */
+  box-sizing: border-box !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  /* SCROLL SUAVE */
+  scroll-behavior: smooth !important;
+}
+
+/* ===== SCROLLBAR PERSONALIZADO ===== */
+.modal-reserva .modal-container-unificado::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.modal-reserva .modal-container-unificado::-webkit-scrollbar-track {
+  background: #F5F1EB !important; /* FONDO CREMA */
+  border-radius: 4px !important;
+}
+
+.modal-reserva .modal-container-unificado::-webkit-scrollbar-thumb {
+  background: #8B4513 !important; /* MARRÓN MADERA */
+  border-radius: 4px !important;
+  transition: background 0.2s ease !important;
+}
+
+.modal-reserva .modal-container-unificado::-webkit-scrollbar-thumb:hover {
+  background: #451A03 !important; /* MARRÓN OSCURO AL HOVER */
+}
+
+/* ===== MEDIA QUERIES PARA DISPOSITIVOS ESPECÍFICOS ===== */
+
+/* ===== IPAD (768px - 1024px) ===== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .modal-reserva .modal-container-unificado {
+    /* FORZAR SCROLL COMPLETO EN IPAD */
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* PADDING AJUSTADO PARA IPAD */
+    padding: 0 !important; /* SIN MARGEN */
+  }
+  
+  /* FORZAR ALTURA MÍNIMA EN IPAD */
+  .modal-reserva .modal-container-unificado::after {
+    content: '' !important;
+    display: block !important;
+    height: 200px !important; /* ESPACIO EXTRA PARA SCROLL */
+    min-height: 200px !important;
+  }
+}
+
+/* ===== IPAD PRO (1024px - 1366px) ===== */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .modal-reserva .modal-container-unificado {
+    /* FORZAR SCROLL COMPLETO EN IPAD PRO */
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* PADDING AJUSTADO PARA IPAD PRO */
+    padding: 0 !important; /* SIN MARGEN */
+  }
+  
+  /* FORZAR ALTURA MÍNIMA EN IPAD PRO */
+  .modal-reserva .modal-container-unificado::after {
+    content: '' !important;
+    display: block !important;
+    height: 300px !important; /* ESPACIO EXTRA PARA SCROLL */
+    min-height: 300px !important;
+  }
+}
+
+/* ===== MÓVILES (hasta 767px) ===== */
+@media (max-width: 767px) {
+  .modal-reserva .modal-container-unificado {
+    /* FORZAR SCROLL COMPLETO EN MÓVILES */
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* PADDING AJUSTADO PARA MÓVILES */
+    padding: 0 !important; /* SIN MARGEN */
+  }
+  
+  /* FORZAR ALTURA MÍNIMA EN MÓVILES */
+  .modal-reserva .modal-container-unificado::after {
+    content: '' !important;
+    display: block !important;
+    height: 150px !important; /* ESPACIO EXTRA PARA SCROLL */
+    min-height: 150px !important;
+  }
+}
+
+/* ===== IPHONE ESPECÍFICO ===== */
+@media (max-width: 375px) {
+  .modal-reserva .modal-container-unificado {
+    /* FORZAR SCROLL COMPLETO EN IPHONE */
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* PADDING AJUSTADO PARA IPHONE */
+    padding: 0 !important; /* SIN MARGEN */
+  }
+  
+  /* FORZAR ALTURA MÍNIMA EN IPHONE */
+  .modal-reserva .modal-container-unificado::after {
+    content: '' !important;
+    display: block !important;
+    height: 100px !important; /* ESPACIO EXTRA PARA SCROLL */
+    min-height: 100px !important;
+  }
+}
+
+/* ===== GALAXY FOLD ESPECÍFICO ===== */
+@media (max-width: 280px) {
+  .modal-reserva .modal-container-unificado {
+    /* FORZAR SCROLL COMPLETO EN GALAXY FOLD */
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* PADDING AJUSTADO PARA GALAXY FOLD */
+    padding: 0 !important; /* SIN MARGEN */
+  }
+  
+  /* FORZAR ALTURA MÍNIMA EN GALAXY FOLD */
+  .modal-reserva .modal-container-unificado::after {
+    content: '' !important;
+    display: block !important;
+    height: 80px !important; /* ESPACIO EXTRA PARA SCROLL */
+    min-height: 80px !important;
+  }
+}
+
+/* ===== ESTRUCTURA DE BOTONES - RESTAURADA ===== */
+.modal-reserva .modal-actions {
+  padding: 24px 0 !important;
+  margin-top: 20px !important;
+  border-top: 2px solid #8B4513 !important; /* BORDE MARRÓN MADERA */
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 20px !important;
+  flex-wrap: wrap !important;
+  /* NUEVO: ANCHO MÁXIMO Y CENTRADO */
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 16px auto 0 auto !important;
+  padding: 20px 0 !important;
+}
+
+/* ===== SIMPLIFICACIÓN DE MÁRGENES Y RECUADROS ===== */
+.modal-reserva .modal-header,
+.modal-reserva .reserva-config,
+.modal-reserva .cliente-form,
+.modal-reserva .resumen-total,
+.modal-reserva .reservas-existentes,
+.modal-reserva .palco-info {
+  margin: 8px auto !important; /* MARGEN MÍNIMO ENTRE SECCIONES */
+  max-width: 600px !important;
+  width: 100% !important;
+}
+
+.modal-reserva .modal-header {
+  margin-top: 0 !important; /* SIN MARGEN SUPERIOR */
+  margin-bottom: 8px !important; /* MARGEN MÍNIMO */
+}
+
+.modal-reserva .reserva-config {
+  margin: 8px auto !important;
+}
+
+.modal-reserva .cliente-form {
+  margin: 8px auto !important;
+  padding: 16px !important; /* PADDING REDUCIDO */
+}
+
+.modal-reserva .resumen-total {
+  margin: 8px auto !important;
+  padding: 16px !important; /* PADDING REDUCIDO */
+}
+
+.modal-reserva .reservas-existentes {
+  margin: 8px auto !important;
+  padding: 16px !important; /* PADDING REDUCIDO */
+}
+
+.modal-reserva .palco-info {
+  margin: 8px auto !important;
+  padding: 16px !important; /* PADDING REDUCIDO */
+}
+
+.modal-reserva .modal-actions {
+  margin: 8px auto 0 auto !important;
+  padding: 16px 0 !important; /* PADDING REDUCIDO */
+}
+
+/* ===== ELIMINACIÓN DE BORDES EXCESIVOS ===== */
+.modal-reserva .cliente-form,
+.modal-reserva .reservas-existentes {
+  border: 1px solid #8B4513 !important; /* BORDE MÁS DELGADO */
+  background: #FFFFFF !important; /* FONDO BLANCO LIMPIO */
+}
+
+.modal-reserva .palco-info {
+  border: 1px solid #8B4513 !important; /* BORDE MÁS DELGADO */
+  background: #F5F1EB !important; /* FONDO CREMA SUAVE */
+}
+
+.modal-reserva .resumen-total {
+  border: 2px solid #8B4513 !important; /* BORDE MANTENIDO PARA DESTACAR */
+  background: #F5F1EB !important; /* FONDO CREMA SUAVE */
+}
+
+.modal-reserva .reserva-config .modo-avanzado {
+  border: 1px solid #8B4513 !important; /* BORDE MÁS DELGADO */
+  background: #F5F1EB !important; /* FONDO CREMA SUAVE */
+}
+
+/* ===== REDUCCIÓN DE ESPACIADO INTERNO ===== */
+.modal-reserva .dia-card {
+  margin-bottom: 8px !important; /* MARGEN MÍNIMO ENTRE TARJETAS */
+  padding: 12px !important; /* PADDING REDUCIDO */
+}
+
+.modal-reserva .dia-card .cantidad-controls {
+  margin-top: 12px !important; /* MARGEN REDUCIDO */
+  padding: 8px !important; /* PADDING REDUCIDO */
+}
+
+.modal-reserva .dia-card .precio-info {
+  margin-bottom: 8px !important; /* MARGEN REDUCIDO */
+}
+
+.modal-reserva .dia-card .subtotal-dia {
+  padding: 6px !important; /* PADDING REDUCIDO */
+  margin-top: 8px !important; /* MARGEN REDUCIDO */
+}
+
