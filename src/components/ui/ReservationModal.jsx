@@ -13,7 +13,6 @@ const ReservationModal = ({
   handleIniciarPago,
   loading,
   DIAS,
-  PRECIO_PALCO_COMPLETO,
   PRECIO_SILLA,
   getSillasDisponibles,
   getDiasActivos,
@@ -39,7 +38,7 @@ const ReservationModal = ({
   // Función para calcular precio total
   const calcularPrecioTotal = () => {
     if (palcoSeleccionado.tipo === 'completo') {
-      return PRECIO_PALCO_COMPLETO;
+      return palcoSeleccionado.precio || 0;
     }
     return calcularPrecioEspecifico();
   };
@@ -256,7 +255,7 @@ const ReservationModal = ({
                   textAlign: 'center',
                   lineHeight: '1.2'
                 }}>
-                  ${PRECIO_PALCO_COMPLETO.toLocaleString()}
+                  ${(palcoSeleccionado?.precio || 0).toLocaleString()}
                 </div>
                 <div style={{ 
                   fontSize: deviceInfo?.isMobile ? '0.9rem' : '1.1rem', 

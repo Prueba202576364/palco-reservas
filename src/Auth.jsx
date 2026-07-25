@@ -371,7 +371,7 @@ export const LoginForm = () => {
             margin: '0',
             fontWeight: '500'
           }}>
-            Exposición Equina Tenjo 2025
+            Exposición Equina Tenjo 2026
           </p>
         </div>
 

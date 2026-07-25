@@ -20,6 +20,7 @@ import MisReservasModal from './components/ui/MisReservasModal';
 import PagosClienteModal from './components/ui/PagosClienteModal';
 import HistoricoCompletoModal from './components/ui/HistoricoCompletoModal';
 import GestionQRModal from './components/ui/GestionQRModal';
+import PrecioPalcoModal from './components/ui/PrecioPalcoModal';
 
 
 // 🆕 FIX COMPLETO PARA SCROLL EN PÁGINA PRINCIPAL - SIN ACORTAMIENTO
@@ -268,9 +269,13 @@ const DebugSincronizacion = ({ palcos, onVerificar, onRecargar }) => {
         </button>
         
         <button
-          onClick={onVerificar}
+          onClick={() => {
+            if (window.confirm('⚠️ Esto va a SOBRESCRIBIR los datos del servidor con tu copia local. Solo úsalo si sabes que tu copia local es la correcta (por ejemplo, recuperándote de un error). ¿Continuar?')) {
+              onVerificar();
+            }
+          }}
           style={{
-            background: '#27ae60',
+            background: '#e67e22',
             color: 'white',
             border: 'none',
             borderRadius: '5px',
@@ -279,7 +284,7 @@ const DebugSincronizacion = ({ palcos, onVerificar, onRecargar }) => {
             fontSize: '12px'
           }}
         >
-          🔄 Verificar Sincronización
+          ⚠️ Forzar mis datos al servidor
         </button>
         
         <button
@@ -367,6 +372,9 @@ function AppContent() {
     }
     return crearPalcosIniciales();
   });
+  // 🔄 Estado de sincronización en tiempo real de palcos (ver listener onPalcosChange)
+  const [syncPalcosEnVivo, setSyncPalcosEnVivo] = useState(false);
+  const [ultimaSyncPalcos, setUltimaSyncPalcos] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('todos');
   const [filtroDia, setFiltroDia] = useState('todos');
   // Filtro de tipo de palco: 'todos', 'completo', 'sillas'
@@ -522,6 +530,7 @@ const [pagoData, setPagoData] = useState({
 
   // Estados para gestión de QR
   const [showQRUploader, setShowQRUploader] = useState(false);
+  const [showPrecioPalco, setShowPrecioPalco] = useState(false);
 
   const [qrData, setQrData] = useState({
   nequi: null,
@@ -2056,7 +2065,7 @@ const handleConfirmarReservaConPago = async (e) => {
       correo: form.correo,
       palco: palcoSeleccionado.numero,
       tipoPalco: palcoSeleccionado.tipo,
-      monto: palcoSeleccionado.tipo === 'completo' ? PRECIO_PALCO_COMPLETO : calcularPrecioSillas(),
+      monto: palcoSeleccionado.tipo === 'completo' ? palcoSeleccionado.precio : calcularPrecioSillas(),
       vendedor: form.vendedor,
       cantidad: palcoSeleccionado.tipo === 'completo' ? '10 sillas (completo)' : form.cantidad,
       dias: palcoSeleccionado.tipo === 'completo' ? 'Todos los días' : form.dias.join(', ')
@@ -2232,6 +2241,19 @@ useEffect(() => {
     try {
       console.log('🔍 Inicializando listeners de Firebase para reservas del cliente...');
       
+      // 🔄 Listener en tiempo real para PALCOS: así todos los vendedores ven
+      // al instante las ventas/reservas/cambios que hacen los demás, en vez de
+      // depender de recargar la página (que además solo leía localStorage).
+      const unsubscribePalcosLive = firebaseSyncService.onPalcosChange((data) => {
+        if (data && Array.isArray(data.palcos) && data.palcos.length > 0) {
+          console.log(`🔄 Palcos actualizados en tiempo real (origen: ${data.appOrigen || 'desconocido'})`);
+          setPalcos(data.palcos);
+          localStorage.setItem('feriaPalcos', JSON.stringify(data.palcos));
+          setSyncPalcosEnVivo(true);
+          setUltimaSyncPalcos(new Date());
+        }
+      });
+
       // Listener para pagos del vendedor (para "Verificar Pagos")
       const unsubscribePagosVendedor = firebaseSyncService.onPagosVendedorChange((pagos) => {
         console.log('🔄 Pagos del vendedor actualizados:', pagos.length);
@@ -2282,6 +2304,7 @@ useEffect(() => {
       window.addEventListener('qrEliminado', handleQrEliminado);
 
       return () => {
+        unsubscribePalcosLive();
         unsubscribePagosVendedor();
         unsubscribePagosCliente();
         unsubscribeReservas();
@@ -2713,8 +2736,8 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
   // CONFIRMACIÓN
   const confirmar = window.confirm(
     `¿Está seguro de cancelar la reserva de ${reserva.nombre}?\n${
-      palco.tipo === 'completo' 
-        ? `Palco completo ${palco.numero} - $${PRECIO_PALCO_COMPLETO.toLocaleString()}` 
+      palco.tipo === 'completo'
+        ? `Palco completo ${palco.numero} - $${(palco.precio || 0).toLocaleString()}`
         : `${reserva.cantidad} silla(s) en Palco ${palco.numero} para ${dia} - $${(PRECIO_SILLA[dia] * reserva.cantidad).toLocaleString()}`
     }\n\n⚠️ Esta acción no se puede deshacer.`
   );
@@ -2730,8 +2753,8 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
     const operacionId = `cancel-${palco.numero}-${timestamp}`;
     
     // CALCULAR MONTO ANTES DE PROCESAR
-    const montoDevolucion = palco.tipo === 'completo' 
-      ? PRECIO_PALCO_COMPLETO 
+    const montoDevolucion = palco.tipo === 'completo'
+      ? (palco.precio || 0)
       : PRECIO_SILLA[dia] * reserva.cantidad;
 
     // DATOS PARA REGISTROS
@@ -2889,12 +2912,30 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
     }
   };
 
+  // 💰 Precio del palco completo (editable desde el panel, botón "Precio Palco")
+  const [precioPalcoCompleto, setPrecioPalcoCompleto] = useState(1500000);
+
+  // Cargar precio configurado desde Firebase al iniciar
+  useEffect(() => {
+    firebaseSyncService.obtenerConfiguracion()
+      .then((config) => {
+        if (config?.precioPalcoCompleto) {
+          setPrecioPalcoCompleto(config.precioPalcoCompleto);
+        }
+      })
+      .catch((error) => {
+        console.error('❌ Error cargando precio de palco completo:', error);
+      });
+  }, []);
+
   // Precios
-  const PRECIO_PALCO_COMPLETO = 1500000;
+  // 💰 Precio del palco completo: editable desde el panel (botón "Precio Palco")
+  // hasta que se confirme el valor definitivo (1.000.000 o 1.200.000, y si aplica por día).
+  const PRECIO_PALCO_COMPLETO = precioPalcoCompleto;
   const PRECIO_SILLA = {
-    viernes: 50000,
-    sabado: 80000,
-    domingo: 80000,
+    viernes: 120000,
+    sabado: 120000,
+    domingo: 120000,
   };
   const METODOS_PAGO = {
     efectivo: {
@@ -2997,6 +3038,10 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
   }, [filtroEstado, filtroDia, filtroTipo, resetPagination]);
 
   const handleReservar = (palco) => {
+    if (palco.tipo === 'completo' && !palco.precio) {
+      mostrarMensaje('error', `⚠️ El Palco ${palco.numero} todavía no tiene precio asignado. Ve a "💰 Precio Palco" para configurarlo antes de venderlo.`);
+      return;
+    }
     setPalcoSeleccionado(palco);
     setShowReserva(true);
     
@@ -3226,7 +3271,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
         // Sincronizar con Firebase inmediatamente
         firebaseSyncService.sincronizarPalcos(nuevosPalcos);
         mostrarMensaje('success', `¡Palco ${palcoSeleccionado.numero} reservado exitosamente!`);
-        registrarIngreso('venta', PRECIO_PALCO_COMPLETO, {
+        registrarIngreso('venta', palcoSeleccionado.precio, {
           cedula: form.cedula,
           nombre: form.nombre,
           vendedor: form.vendedor,
@@ -3606,6 +3651,26 @@ const handleConfirmarReservaEspecifica = async (e) => {
     mostrarMensaje('success', `Palco ${numeroPalco} ahora es completo.`);
   };
 
+  // 💰 Guardar precio(s) de palco(s) completo(s) — sirve tanto para editar uno solo
+  // como para aplicar un precio en lote a varios palcos sin precio asignado.
+  // cambios: [{ numero, precio }, ...]
+  const guardarPreciosPalcos = (cambios) => {
+    setPalcos(prev => {
+      const nuevosPalcos = prev.map(p => {
+        const cambio = cambios.find(c => c.numero === p.numero);
+        return cambio ? { ...p, precio: cambio.precio } : p;
+      });
+
+      firebaseSyncService.sincronizarPalcos(nuevosPalcos);
+
+      return nuevosPalcos;
+    });
+
+    mostrarMensaje('success', cambios.length === 1
+      ? `💰 Precio del Palco ${cambios[0].numero} actualizado a $${cambios[0].precio.toLocaleString()}`
+      : `💰 Precio actualizado en ${cambios.length} palcos`);
+  };
+
   // Función para limpiar datos con estructura incorrecta
   const limpiarDatosEstructuraIncorrecta = () => {
     console.log('🔧 Limpiando datos con estructura incorrecta...');
@@ -3799,7 +3864,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
               textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
               textAlign: 'center'
             }}>
-              FERIA EXPOEQUINOS 2025
+              FERIA EXPOEQUINOS 2026
             </h1>
           </div>
           
@@ -3847,6 +3912,26 @@ const handleConfirmarReservaEspecifica = async (e) => {
               margin: '12px auto 0',
               borderRadius: '2px'
             }}></div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              marginTop: '10px',
+              fontSize: '12px',
+              color: colors.woodBrown
+            }}>
+              <span style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: syncPalcosEnVivo ? '#16A34A' : '#D97706',
+                display: 'inline-block'
+              }}></span>
+              {syncPalcosEnVivo
+                ? `Sincronizado en tiempo real${ultimaSyncPalcos ? ` · última actualización ${ultimaSyncPalcos.toLocaleTimeString()}` : ''}`
+                : 'Conectando con el servidor...'}
+            </div>
           </div>
 
           {/* 🎨 Grid de botones elegantes */}
@@ -4405,6 +4490,57 @@ const handleConfirmarReservaEspecifica = async (e) => {
               </div>
             )}
 
+            {/* 💰 PRECIO PALCO COMPLETO */}
+            {canManageQR() && (
+              <div style={{
+                background: `linear-gradient(135deg, ${colors.primaryGold} 0%, ${colors.woodBrown} 100%)`,
+                borderRadius: '16px',
+                padding: '16px',
+                boxShadow: `0 6px 20px rgba(217, 119, 6, 0.3)`,
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                border: 'none',
+                position: 'relative',
+                overflow: 'hidden',
+                height: '60px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onClick={() => setShowPrecioPalco(true)}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-8px) scale(1.02)';
+                e.target.style.boxShadow = '0 12px 30px rgba(217, 119, 6, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = '0 6px 20px rgba(217, 119, 6, 0.3)';
+              }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  color: colors.white
+                }}>
+                  <div style={{
+                    fontSize: '2.5rem',
+                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                  }}>
+                    💰
+                  </div>
+                  <h4 style={{
+                    margin: '0',
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
+                    color: colors.white
+                  }}>
+                    Precio Palco
+                  </h4>
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* 🎨 Pie del panel */}
@@ -4562,7 +4698,12 @@ const handleConfirmarReservaEspecifica = async (e) => {
             <option value="completo">Completos</option>
             <option value="sillas">Por sillas</option>
           </select>
-          <button className="btn btn-actualizar" onClick={() => { setFiltroEstado('todos'); setFiltroDia('todos'); setFiltroTipo('todos'); }}>🔄 Actualizar</button>
+          <button className="btn btn-actualizar" onClick={() => {
+            setFiltroEstado('todos');
+            setFiltroDia('todos');
+            setFiltroTipo('todos');
+            recargarDatosDesdeFirebase();
+          }}>🔄 Actualizar</button>
         </div>
       </section>
 
@@ -4581,6 +4722,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
   onConvertirACompleto={convertirPalcoACompleto}
   onConvertirASillas={convertirPalcoAporSillas}
   canConvertPalcos={canConvertPalcos}
+  PRECIO_SILLA={PRECIO_SILLA}
 />
         ) : (
           // 🆕 NUEVO: Grilla con paginación - CONTENEDOR UNIFICADO
@@ -4660,6 +4802,16 @@ const handleConfirmarReservaEspecifica = async (e) => {
                     {estado === 'disponible' && `Disponible (${sillasDisponibles} sillas)`}
                     {estado === 'reservado' && `Reservado (${sillasDisponibles} sillas libres)`}
                     {estado === 'vendido' && `Vendido`}
+                  </span>
+                  <br />
+                  <span style={{
+                    fontSize: 12,
+                    fontWeight: 'bold',
+                    color: palco.tipo === 'completo' && !palco.precio ? '#C4302B' : '#451A03'
+                  }}>
+                    {palco.tipo === 'completo'
+                      ? (palco.precio ? `$${palco.precio.toLocaleString()}` : '⚠️ Sin precio asignado')
+                      : `$${(PRECIO_SILLA.viernes || 0).toLocaleString()}/día`}
                   </span>
                   {/* Botones de conversión - Solo administradores */}
                   {canConvertPalcos() && (
@@ -4997,7 +5149,6 @@ const handleConfirmarReservaEspecifica = async (e) => {
         handleIniciarPago={handleIniciarPago}
         loading={loading}
         DIAS={DIAS}
-        PRECIO_PALCO_COMPLETO={PRECIO_PALCO_COMPLETO}
         PRECIO_SILLA={PRECIO_SILLA}
         getSillasDisponibles={getSillasDisponibles}
         getDiasActivos={getDiasActivos}
@@ -5011,6 +5162,16 @@ const handleConfirmarReservaEspecifica = async (e) => {
       <GestionQRModal
         isOpen={showQRUploader}
         onClose={() => setShowQRUploader(false)}
+      />
+
+      {/* Modal de Precio de Palco Completo */}
+      <PrecioPalcoModal
+        isOpen={showPrecioPalco}
+        onClose={() => setShowPrecioPalco(false)}
+        palcos={palcos}
+        precioSugerido={precioPalcoCompleto}
+        onGuardarPrecioSugerido={setPrecioPalcoCompleto}
+        onGuardarPrecios={guardarPreciosPalcos}
       />
       
       {/* Modal de Estadísticas Mejorado */}

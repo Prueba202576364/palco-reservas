@@ -311,6 +311,20 @@ class FirebaseSyncService {
     }
   }
 
+  // 📥 OBTENER CONFIGURACIÓN (QR, precios, etc.)
+  async obtenerConfiguracion() {
+    try {
+      const configDoc = await getDoc(this.configRef);
+      if (configDoc.exists()) {
+        return configDoc.data();
+      }
+      return {};
+    } catch (error) {
+      console.error('❌ Error obteniendo configuración:', error);
+      return {};
+    }
+  }
+
   // 🖼️ SINCRONIZAR IMÁGENES QR (Base64)
   async sincronizarQR(qrData) {
     try {

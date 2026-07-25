@@ -64,7 +64,8 @@ const MapaPalcos = ({
   filtroDia = 'todos',
   onConvertirACompleto,
   onConvertirASillas,
-  canConvertPalcos = () => false
+  canConvertPalcos = () => false,
+  PRECIO_SILLA = {}
 }) => {
   const [showTooltip, setShowTooltip] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
@@ -313,7 +314,9 @@ const MapaPalcos = ({
       iconoEstado,
       disponibles: disponibles,
       ocupacion: `${10 - disponibles}/10 sillas`,
-      precio: tipoReal === 'completo' ? '$1,500,000' : 'Desde $50,000',
+      precio: tipoReal === 'completo'
+        ? (palcoData?.precio ? `$${palcoData.precio.toLocaleString()}` : '⚠️ Sin precio asignado')
+        : `$${(PRECIO_SILLA?.viernes || 0).toLocaleString()}/día`,
       tipo: tipoReal
     };
   };
@@ -530,12 +533,14 @@ const MapaPalcos = ({
         border: '3px solid #8B4513',
         borderRadius: '12px',
         overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+        boxSizing: 'border-box'
       }}>
       {/* Encabezado del Mapa */}
       <div className="mapa-header" style={{
         width: '100%',
         maxWidth: '900px',
+        boxSizing: 'border-box',
         background: 'linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #D2691E 100%)',
         borderRadius: '12px 12px 0 0',
         display: 'flex',
@@ -592,7 +597,7 @@ const MapaPalcos = ({
             whiteSpace: 'nowrap',
             lineHeight: '1.4'
           }}>
-            del 13 al 15 de Septiembre de 2025
+            del 11 al 13 de Septiembre de 2026
           </p>
         </div>
         
@@ -673,7 +678,7 @@ const MapaPalcos = ({
               lineHeight: '1.3',
               letterSpacing: 'clamp(0.5px, 0.1vw, 1px)'
             }}>
-              Tenjo 2025
+              Tenjo 2026
             </div>
           </div>
         </div>
@@ -1005,7 +1010,7 @@ const MapaPalcos = ({
                 fill="#27ae60"
                 fontWeight="500"
               >
-                13-15 Septiembre 2025
+                11-13 Septiembre 2026
               </text>
             </g>
 

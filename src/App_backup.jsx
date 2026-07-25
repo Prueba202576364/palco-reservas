@@ -13,3 +13,9 @@ const PALCOS_SILLAS = [14, 21, 33];
 
 
 
+
+
+
+
+
+
