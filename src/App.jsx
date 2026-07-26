@@ -4288,6 +4288,57 @@ const handleConfirmarReservaEspecifica = async (e) => {
               </div>
             )}
 
+            {/* 🗑️ RESETEAR TODO - Solo Admin Principal, acción destructiva e irreversible */}
+            {user?.role === 'ADMIN_PRINCIPAL' && (
+              <div style={{
+                background: `linear-gradient(135deg, #7f1d1d 0%, ${colors.darkBrown} 100%)`,
+                borderRadius: '16px',
+                padding: '16px',
+                boxShadow: `0 6px 20px rgba(127, 29, 29, 0.4)`,
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                border: '2px dashed rgba(255,255,255,0.4)',
+                position: 'relative',
+                overflow: 'hidden',
+                height: '60px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onClick={resetearCompletamente}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-8px) scale(1.02)';
+                e.target.style.boxShadow = '0 12px 30px rgba(127, 29, 29, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = '0 6px 20px rgba(127, 29, 29, 0.4)';
+              }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  color: colors.white
+                }}>
+                  <div style={{
+                    fontSize: '2.5rem',
+                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                  }}>
+                    🗑️
+                  </div>
+                  <h4 style={{
+                    margin: '0',
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
+                    color: colors.white
+                  }}>
+                    Resetear Todo
+                  </h4>
+                </div>
+              </div>
+            )}
+
             {/* 📋 HISTÓRICO COMPLETO */}
             {canViewAllHistory() && (
               <div style={{
