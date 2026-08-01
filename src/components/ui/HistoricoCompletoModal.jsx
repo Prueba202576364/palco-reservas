@@ -1,4 +1,7 @@
+import { useEffect } from 'react';
 import { useDeviceDetection } from '../../hooks/useDeviceDetection';
+import usePagination from '../../hooks/usePagination';
+import { CATEGORIAS_ACCION, getAccionColor, getAccionIcon } from '../../utils/historicoUtils';
 
 const HistoricoCompletoModal = ({
   isOpen,
@@ -23,29 +26,28 @@ const HistoricoCompletoModal = ({
     woodBrown: '#8B4513'
   };
 
+  // Solo se calcula el filtrado mientras el modal está abierto, para no
+  // gastar ciclos (ni el ruido de console.log) cuando está cerrado.
+  const registrosFiltrados = isOpen ? getHistoricoFiltrado() : [];
+
+  // 📄 Paginación: antes se pintaban TODOS los registros de una sola vez,
+  // lo que se vuelve lento con cientos de operaciones acumuladas.
+  const {
+    currentItems: registrosPaginados,
+    currentPage,
+    totalPages,
+    goToNextPage,
+    goToPrevPage,
+    hasNextPage,
+    hasPrevPage,
+    resetPagination
+  } = usePagination(registrosFiltrados, 8);
+
+  useEffect(() => {
+    resetPagination();
+  }, [filtrosHistorico, resetPagination]);
+
   if (!isOpen) return null;
-
-  // Función para obtener el color de la acción
-  const getAccionColor = (accion) => {
-    switch (accion) {
-      case 'Reserva': return colors.primaryGreen;
-      case 'Cancelación': return colors.primaryRed;
-      case 'Movimiento': return colors.primaryGold;
-      case 'Edición': return colors.woodBrown;
-      default: return colors.darkBrown;
-    }
-  };
-
-  // Función para obtener el icono de la acción
-  const getAccionIcon = (accion) => {
-    switch (accion) {
-      case 'Reserva': return '✅';
-      case 'Cancelación': return '❌';
-      case 'Movimiento': return '🔄';
-      case 'Edición': return '✏️';
-      default: return '📋';
-    }
-  };
 
   // Función para formatear la fecha
   const formatearFecha = (fecha) => {
@@ -414,10 +416,11 @@ const HistoricoCompletoModal = ({
                   }}
                 >
                   <option value="todas">Todas las acciones</option>
-                  <option value="Reserva">Reservas</option>
-                  <option value="Cancelación">Cancelaciones</option>
-                  <option value="Movimiento">Movimientos</option>
-                  <option value="Edición">Ediciones</option>
+                  {Object.entries(CATEGORIAS_ACCION).map(([clave, categoria]) => (
+                    <option key={clave} value={clave}>
+                      {categoria.icon} {categoria.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div style={{ display: 'flex', alignItems: 'end' }}>
@@ -468,15 +471,17 @@ const HistoricoCompletoModal = ({
             }}>
               {user?.role === 'EMPLEADO' ? (
                 <>
-                  Mostrando <span style={{ color: colors.primaryGreen }}>{getHistoricoFiltrado().length}</span> de tus{' '}
-                  <span style={{ color: colors.primaryGold }}>{historico.filter(r => r.vendedor === user.vendedor).length}</span> registros
+                  Mostrando <span style={{ color: colors.primaryGreen }}>{registrosFiltrados.length}</span> de tus{' '}
+                  <span style={{ color: colors.primaryGold }}>
+                    {historico.filter(r => (r.vendedor || '').toLowerCase() === (user.vendedor || '').toLowerCase()).length}
+                  </span> registros
                   {(filtrosHistorico.cedula || filtrosHistorico.vendedor || filtrosHistorico.palco || filtrosHistorico.accion !== 'todas') && (
                     <span style={{ color: colors.primaryRed }}> (filtrados)</span>
                   )}
                 </>
               ) : (
                 <>
-                  Mostrando <span style={{ color: colors.primaryGreen }}>{getHistoricoFiltrado().length}</span> de{' '}
+                  Mostrando <span style={{ color: colors.primaryGreen }}>{registrosFiltrados.length}</span> de{' '}
                   <span style={{ color: colors.primaryGold }}>{historico.length}</span> registros
                   {(filtrosHistorico.cedula || filtrosHistorico.vendedor || filtrosHistorico.palco || filtrosHistorico.accion !== 'todas') && (
                     <span style={{ color: colors.primaryRed }}> (filtrados)</span>
@@ -511,7 +516,7 @@ const HistoricoCompletoModal = ({
               📋 Registros del Histórico
             </h4>
 
-            {getHistoricoFiltrado().length === 0 ? (
+            {registrosFiltrados.length === 0 ? (
               <div style={{
                 textAlign: 'center',
                 padding: deviceInfo?.isMobile ? '40px 20px' : 
@@ -558,7 +563,7 @@ const HistoricoCompletoModal = ({
                 gap: deviceInfo?.isMobile ? '16px' : 
                      deviceInfo?.isTablet ? '18px' : '20px'
               }}>
-                {getHistoricoFiltrado().map((registro) => (
+                {registrosPaginados.map((registro) => (
                   <div 
                     key={registro.id} 
                     style={{
@@ -707,6 +712,50 @@ const HistoricoCompletoModal = ({
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '16px',
+                marginTop: '20px'
+              }}>
+                <button
+                  onClick={goToPrevPage}
+                  disabled={!hasPrevPage}
+                  style={{
+                    backgroundColor: hasPrevPage ? colors.woodBrown : '#ccc',
+                    color: colors.white,
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '10px 18px',
+                    fontWeight: 'bold',
+                    cursor: hasPrevPage ? 'pointer' : 'not-allowed'
+                  }}
+                >
+                  ‹ Anterior
+                </button>
+                <span style={{ color: colors.darkBrown, fontWeight: 'bold' }}>
+                  Página {currentPage} de {totalPages}
+                </span>
+                <button
+                  onClick={goToNextPage}
+                  disabled={!hasNextPage}
+                  style={{
+                    backgroundColor: hasNextPage ? colors.woodBrown : '#ccc',
+                    color: colors.white,
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '10px 18px',
+                    fontWeight: 'bold',
+                    cursor: hasNextPage ? 'pointer' : 'not-allowed'
+                  }}
+                >
+                  Siguiente ›
+                </button>
               </div>
             )}
           </div>

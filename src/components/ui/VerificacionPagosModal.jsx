@@ -233,14 +233,14 @@ const VerificacionPagosModal = ({
                        </h4>
                                              <div style={{
                          display: 'grid',
-                         gridTemplateColumns: deviceInfo?.isMobile ? '1fr' : 'repeat(3, 1fr)',
-                         gap: deviceInfo?.isMobile ? '12px' : 
+                         gridTemplateColumns: deviceInfo?.isMobile ? '1fr' : 'repeat(4, 1fr)',
+                         gap: deviceInfo?.isMobile ? '12px' :
                               deviceInfo?.isTablet ? '14px' : '16px',
                          fontSize: deviceInfo?.isMobile ? '13px' : '14px'
                        }}>
                         <div style={{
                           backgroundColor: colors.creamBg,
-                          padding: deviceInfo?.isMobile ? '10px' : 
+                          padding: deviceInfo?.isMobile ? '10px' :
                                    deviceInfo?.isTablet ? '12px' : '12px',
                           borderRadius: '10px',
                           textAlign: 'center'
@@ -250,7 +250,7 @@ const VerificacionPagosModal = ({
                         </div>
                         <div style={{
                           backgroundColor: colors.creamBg,
-                          padding: deviceInfo?.isMobile ? '10px' : 
+                          padding: deviceInfo?.isMobile ? '10px' :
                                    deviceInfo?.isTablet ? '12px' : '12px',
                           borderRadius: '10px',
                           textAlign: 'center'
@@ -260,16 +260,45 @@ const VerificacionPagosModal = ({
                             ${pago.montoEsperado ? pago.montoEsperado.toLocaleString() : '0'}
                           </div>
                         </div>
+                        {(() => {
+                          const esperado = Number(pago.montoEsperado) || 0;
+                          const enviado = Number(pago.montoEnviado) || 0;
+                          const hayDiscrepancia = enviado > 0 && esperado > 0 && enviado !== esperado;
+                          return (
+                            <div style={{
+                              backgroundColor: hayDiscrepancia ? '#FDECEA' : colors.creamBg,
+                              padding: deviceInfo?.isMobile ? '10px' :
+                                       deviceInfo?.isTablet ? '12px' : '12px',
+                              borderRadius: '10px',
+                              textAlign: 'center',
+                              border: hayDiscrepancia ? `2px solid ${colors.primaryRed}` : 'none'
+                            }}>
+                              <strong style={{ color: colors.darkBrown }}>Enviado (según cliente):</strong>
+                              <div style={{
+                                color: hayDiscrepancia ? colors.primaryRed : colors.primaryGreen,
+                                marginTop: '4px',
+                                fontWeight: 'bold'
+                              }}>
+                                ${enviado.toLocaleString()}
+                              </div>
+                              {hayDiscrepancia && (
+                                <div style={{ color: colors.primaryRed, fontSize: '11px', marginTop: '4px', fontWeight: 'bold' }}>
+                                  ⚠️ No coincide con lo esperado
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                         <div style={{
                           backgroundColor: colors.creamBg,
-                          padding: deviceInfo?.isMobile ? '10px' : 
+                          padding: deviceInfo?.isMobile ? '10px' :
                                    deviceInfo?.isTablet ? '12px' : '12px',
                           borderRadius: '10px',
                           textAlign: 'center'
                         }}>
-                          <strong style={{ color: colors.darkBrown }}>Enviado:</strong>
+                          <strong style={{ color: colors.darkBrown }}>Comprobante:</strong>
                           <div style={{ color: colors.woodBrown, marginTop: '4px' }}>
-                            {pago.imagenComprobanteData ? '✅ Comprobante adjunto' : '❌ Sin comprobante'}
+                            {pago.imagenComprobanteData ? '✅ Adjunto' : '❌ Sin comprobante'}
                           </div>
                         </div>
                       </div>

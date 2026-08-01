@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 // 🆕 ARCHIVO CSS ÚNICO Y DEFINITIVO - REEMPLAZA TODOS LOS DEMÁS
 import './styles/ipad-pro-scroll-fix.css';
 // 🆕 MODAL DE RESERVA MEJORADO Y OPTIMIZADO - DISEÑO ELEGANTE Y PROFESIONAL
@@ -21,6 +21,7 @@ import PagosClienteModal from './components/ui/PagosClienteModal';
 import HistoricoCompletoModal from './components/ui/HistoricoCompletoModal';
 import GestionQRModal from './components/ui/GestionQRModal';
 import PrecioPalcoModal from './components/ui/PrecioPalcoModal';
+import BackupModal from './components/ui/BackupModal';
 
 
 // 🆕 FIX COMPLETO PARA SCROLL EN PÁGINA PRINCIPAL - SIN ACORTAMIENTO
@@ -68,7 +69,8 @@ import usePagination from './hooks/usePagination';
 import Pagination from './components/Pagination';
 import { useDeviceDetection } from './hooks/useDeviceDetection';
 
-import { exportarTodoACSV, descargarCSV, exportarPalcosACSV, exportarPagosACSV, exportarEstadisticasACSV } from './utils/exportUtils';
+import { exportarTodoAExcel } from './utils/exportUtils';
+import { accionPerteneceACategoria } from './utils/historicoUtils';
 // 🎨 PALETA DE COLORES ELEGANTE PARA LA APLICACIÓN
 const colors = {
   primaryRed: '#C4302B',
@@ -116,52 +118,24 @@ const CloseModalButton = ({ onClose, title = "Cerrar" }) => (
     ✕
   </button>
 );
-const PALCOS_COMPLETOS = [15, 16, 19, 20, 22, 23, 27, 32, 38, 39, 40];
-const PALCOS_SILLAS = [1, 14, 21, 33]; // 🆕 AGREGADO: Palco 1 como sillas
-
 // Definir todos los palcos del 1 al 40
 const TODOS_LOS_PALCOS = Array.from({length: 40}, (_, i) => i + 1);
 
-// Palcos que ya están definidos como completos o sillas
-const PALCOS_ESPECIALES = [...PALCOS_COMPLETOS, ...PALCOS_SILLAS];
 const DIAS = ['viernes', 'sabado', 'domingo'];
 
+// 🪑 Todos los palcos inician como venta por sillas. El admin puede
+// convertir individualmente cualquiera a "completo" desde el panel
+// (botón "Convertir a completo") cuando lo necesite.
 function crearPalcosIniciales() {
-  const palcos = [];
-  
-  // Generar todos los palcos del 1 al 40
-  TODOS_LOS_PALCOS.forEach(numero => {
-    if (PALCOS_COMPLETOS.includes(numero)) {
-      // Palcos completos predefinidos
-      palcos.push({
-        numero: numero,
-        tipo: 'completo',
-        estado: 'disponible',
-        reservas: [],
-      });
-    } else if (PALCOS_SILLAS.includes(numero)) {
-      // Palcos por sillas predefinidos
-      palcos.push({
-        numero: numero,
-        tipo: 'sillas',
-        reservas: {
-          viernes: [],
-          sabado: [],
-          domingo: [],
-        },
-      });
-    } else {
-      // Palcos normales (por defecto completos)
-      palcos.push({
-        numero: numero,
-        tipo: 'completo',
-        estado: 'disponible',
-        reservas: [],
-      });
-    }
-  });
-  
-  return palcos;
+  return TODOS_LOS_PALCOS.map(numero => ({
+    numero,
+    tipo: 'sillas',
+    reservas: {
+      viernes: [],
+      sabado: [],
+      domingo: [],
+    },
+  }));
 }
 
 // 🆕 COMPONENTE DE DEBUG: Para diagnosticar problemas de sincronización
@@ -531,6 +505,7 @@ const [pagoData, setPagoData] = useState({
   // Estados para gestión de QR
   const [showQRUploader, setShowQRUploader] = useState(false);
   const [showPrecioPalco, setShowPrecioPalco] = useState(false);
+  const [showBackupModal, setShowBackupModal] = useState(false);
 
   const [qrData, setQrData] = useState({
   nequi: null,
@@ -603,6 +578,36 @@ const [pagoData, setPagoData] = useState({
 
     return () => clearInterval(intervalId);
   }, []);
+
+  // 💾 BACKUP AUTOMÁTICO CADA 5 MINUTOS (solo desde sesiones de administrador,
+  // para no crear un backup por cada vendedor conectado). Usamos refs para
+  // que el intervalo siempre lea los datos más recientes sin recrearse.
+  const palcosRef = useRef(palcos);
+  const ingresosRef = useRef(ingresos);
+  const historicoRef = useRef(historico);
+  const pagosPendientesRef = useRef(pagosPendientes);
+  useEffect(() => { palcosRef.current = palcos; }, [palcos]);
+  useEffect(() => { ingresosRef.current = ingresos; }, [ingresos]);
+  useEffect(() => { historicoRef.current = historico; }, [historico]);
+  useEffect(() => { pagosPendientesRef.current = pagosPendientes; }, [pagosPendientes]);
+
+  useEffect(() => {
+    if (!canBackupRestore()) return;
+
+    const intervalId = setInterval(() => {
+      firebaseSyncService.crearBackup({
+        palcos: palcosRef.current,
+        ingresos: ingresosRef.current,
+        historico: historicoRef.current,
+        pagosPendientes: pagosPendientesRef.current,
+        creadoPor: 'Sistema (automático)'
+      })
+        .then(() => firebaseSyncService.limpiarBackupsAntiguos(20))
+        .catch(error => console.error('❌ Error en backup automático:', error));
+    }, 5 * 60 * 1000); // 5 minutos
+
+    return () => clearInterval(intervalId);
+  }, [user]);
 
   useEffect(() => {
     // Guardar histórico automáticamente cuando cambie
@@ -1054,9 +1059,29 @@ const [pagoData, setPagoData] = useState({
       return coincideDia && coincideVendedor && coincideTipo;
     });
   };
+  // 💳 Filtrar pagos pendientes del vendedor por rol: cada vendedor ve solo
+  // los suyos, los administradores ven todos.
+  const getPagosPendientesFiltrados = () => {
+    if (!user) return [];
+
+    if (canViewAllStatistics()) {
+      return pagosPendientes;
+    }
+
+    if (canViewOwnStatistics()) {
+      const nombreVendedor = user.vendedor || user['vendedor '] || user.name;
+      if (!nombreVendedor) return [];
+      return pagosPendientes.filter(pago =>
+        pago.reserva?.vendedor?.toLowerCase() === nombreVendedor.toLowerCase()
+      );
+    }
+
+    return pagosPendientes;
+  };
+
   const getIngresosFiltradosPorRol = (currentUser) => {
     let ingresosFiltrados = getIngresosFiltrados();
-    
+
     // Si no hay usuario, retornar vacío
     if (!currentUser) {
       return [];
@@ -1132,81 +1157,60 @@ const [pagoData, setPagoData] = useState({
   // Función para exportar datos a CSV
   const exportarDatos = () => {
     try {
-      const estadisticas = calcularEstadisticas();
-      
-      // Preparar datos de palcos para exportación
-      const palcosParaExportar = palcos.map(palco => ({
-        ...palco,
-        vendedor: palco.vendedor || '',
-        cliente: palco.cliente || '',
-        fechaReserva: palco.fechaReserva || '',
-        precio: palco.precio || '',
-        observaciones: palco.observaciones || ''
-      }));
+      exportarTodoAExcel({
+        palcos,
+        ingresos,
+        historico,
+        estadisticas: calcularEstadisticas(),
+        estadisticasPorVendedor: getEstadisticasPorVendedor()
+      });
 
-      // Preparar datos de pagos para exportación
-      const pagosParaExportar = [...pagosPendientes, ...pagosCliente].map(pago => ({
-        id: pago.id || '',
-        palcoNumero: pago.palcoNumero || '',
-        cliente: pago.cliente || '',
-        monto: pago.monto || 0,
-        metodoPago: pago.metodoPago || '',
-        estado: pago.estado || '',
-        fecha: pago.fecha || '',
-        comprobante: pago.comprobante || ''
-      }));
-
-      // Exportar todo
-      exportarTodoACSV(palcosParaExportar, pagosParaExportar, estadisticas);
-      
-      mostrarMensaje('success', '📊 Datos exportados correctamente');
+      mostrarMensaje('success', '📊 Excel exportado correctamente (ventas, cancelaciones, palcos, histórico y resumen por vendedor)');
     } catch (error) {
       console.error('❌ Error exportando datos:', error);
       mostrarMensaje('error', '❌ Error al exportar datos');
     }
   };
 
-  // Función para restaurar backup desde localStorage
-  const restaurarBackup = () => {
+  // 💾 Restaurar un backup real (guardado en Firebase, no en localStorage).
+  // Palcos y pagos pendientes se reemplazan por completo (son el estado
+  // "actual" del sistema). Ingresos e histórico se fusionan sin borrar nada
+  // existente, para no perder ventas reales hechas después del backup.
+  const restaurarDesdeBackup = async (backup) => {
+    if (!window.confirm(
+      `¿Restaurar el backup del ${backup.fechaLocal}?\n\n` +
+      `Esto reemplazará el estado actual de los palcos y los pagos pendientes.\n` +
+      `Los ingresos y el histórico NO se borran: solo se completa lo que falte del backup, sin perder ventas nuevas.`
+    )) {
+      return;
+    }
+
     try {
-      if (window.confirm('¿Estás seguro de que quieres restaurar el último backup? Esto sobrescribirá los datos actuales.')) {
-        mostrarMensaje('info', '🔄 Restaurando backup...');
-        
-        // Restaurar palcos
-        const savedPalcos = localStorage.getItem('feriaPalcos');
-        if (savedPalcos) {
-          setPalcos(JSON.parse(savedPalcos));
-        }
-        
-        // Restaurar histórico
-        const savedHistorico = localStorage.getItem('feriaHistorico');
-        if (savedHistorico) {
-          setHistorico(JSON.parse(savedHistorico));
-        }
-        
-        // Restaurar ingresos
-        const savedIngresos = localStorage.getItem('feriaIngresos');
-        if (savedIngresos) {
-          setIngresos(JSON.parse(savedIngresos));
-        }
-        
-        // Restaurar pagos pendientes
-        const savedPagosPendientes = localStorage.getItem('feriaPagosPendientes');
-        if (savedPagosPendientes) {
-          setPagosPendientes(JSON.parse(savedPagosPendientes));
-        }
-        
-        // Restaurar pagos cliente
-        const savedPagosCliente = localStorage.getItem('feriaPagosCliente');
-        if (savedPagosCliente) {
-          setPagosCliente(JSON.parse(savedPagosCliente));
-        }
-        
-        mostrarMensaje('success', '✅ Backup restaurado correctamente');
-      }
+      mostrarMensaje('info', '🔄 Restaurando backup...');
+
+      // Palcos y pagos pendientes: reemplazo completo (local + Firebase)
+      setPalcos(backup.palcos || []);
+      await firebaseSyncService.sincronizarPalcos(backup.palcos || []);
+
+      setPagosPendientes(backup.pagosPendientes || []);
+      await firebaseSyncService.sincronizarPagosPendientes(backup.pagosPendientes || []);
+
+      // Ingresos: fusión segura (sincronizarIngresos ya solo agrega/actualiza por id, nunca borra)
+      await firebaseSyncService.sincronizarIngresos(backup.ingresos || []);
+      setIngresos(prev => {
+        const idsExistentes = new Set(prev.map(i => i.id));
+        const faltantes = (backup.ingresos || []).filter(i => !idsExistentes.has(i.id));
+        return [...prev, ...faltantes];
+      });
+
+      // Histórico: fusión segura (el listener en tiempo real también lo reflejará)
+      await firebaseSyncService.restaurarHistoricoDesdeBackup(backup.historico || []);
+
+      mostrarMensaje('success', '✅ Backup restaurado correctamente');
+      setShowBackupModal(false);
     } catch (error) {
       console.error('❌ Error restaurando backup:', error);
-      mostrarMensaje('error', '❌ Error al restaurar backup');
+      mostrarMensaje('error', '❌ Error al restaurar el backup');
     }
   };
 
@@ -1348,13 +1352,19 @@ const [pagoData, setPagoData] = useState({
         try {
           // Sincronizar palcos vacíos
           await firebaseSyncService.sincronizarPalcos(crearPalcosIniciales());
-          
+
           // Sincronizar pagos pendientes vacíos
           await firebaseSyncService.sincronizarPagosPendientes([]);
-          
+
           // Sincronizar reservas vacías
           await firebaseSyncService.sincronizarReservas([]);
-          
+
+          // 🗑️ Borrar TODOS los ingresos y el histórico en Firebase (antes
+          // faltaba esto: se limpiaban solo localmente y volvían a aparecer
+          // por la sincronización automática de ingresos cada 30 segundos)
+          await firebaseSyncService.eliminarTodosLosIngresos();
+          await firebaseSyncService.eliminarTodoElHistorico();
+
           // Sincronizar estadísticas vacías
           await firebaseSyncService.sincronizarEstadisticas({
             totalIngresos: 0,
@@ -1441,14 +1451,26 @@ const [pagoData, setPagoData] = useState({
     // Solo actualizar si encontramos duplicados
     if (registrosUnicos.length < ingresos.length) {
       setIngresos(registrosUnicos);
-      
+
       // Guardar en localStorage
       localStorage.setItem('feriaIngresos', JSON.stringify(registrosUnicos));
-      
+
       const eliminados = ingresos.length - registrosUnicos.length;
       console.log(`✅ Se eliminaron ${eliminados} registro(s) duplicado(s)`);
-      mostrarMensaje('success', `✅ Se eliminaron ${eliminados} registro(s) duplicado(s). Estadísticas corregidas.`);
-      
+
+      // 🗑️ Borrar también en Firebase. Antes esto no pasaba, así que la
+      // sincronización automática de cada 30 segundos volvía a traer los
+      // duplicados de vuelta.
+      const idsAEliminar = duplicadosEncontrados.map(d => d.ingreso.id).filter(Boolean);
+      firebaseSyncService.eliminarIngresosPorId(idsAEliminar)
+        .then(() => {
+          mostrarMensaje('success', `✅ Se eliminaron ${eliminados} registro(s) duplicado(s) (local y en Firebase). Estadísticas corregidas.`);
+        })
+        .catch((error) => {
+          console.error('❌ Error eliminando duplicados en Firebase:', error);
+          mostrarMensaje('warning', '⚠️ Se limpiaron localmente, pero no se pudieron borrar de Firebase. Podrían reaparecer.');
+        });
+
       // Recalcular estadísticas inmediatamente
       setTimeout(() => {
         const stats = calcularEstadisticas();
@@ -1613,8 +1635,68 @@ if (!pagoData.montoEnviado || pagoData.montoEnviado <= 0) {
 
     setPagosPendientes(prev => [pagoPendiente, ...prev]);
 
+    // 🔥 Subir el pago pendiente a Firebase de inmediato. Antes esto nunca
+    // pasaba: el comprobante solo quedaba en el navegador de quien lo
+    // enviaba, así que ningún admin en otro dispositivo lo veía en
+    // "Verificar Pagos" hasta que fuera demasiado tarde (o nunca).
+    firebaseSyncService.agregarPagoPendiente(pagoPendiente).catch((error) => {
+      console.error('❌ Error sincronizando pago pendiente con Firebase:', error);
+      mostrarMensaje('warning', '⚠️ El comprobante se guardó, pero no se pudo sincronizar con el servidor. Revisa tu conexión.');
+    });
+
+    // 🟡 Marcar el palco/las sillas como "reservado" DE INMEDIATO, mientras
+    // se espera la verificación. Antes el palco se veía "Disponible" para
+    // todos hasta que se aprobaba el pago, así que dos vendedores podían
+    // venderlo dos veces mientras el primer comprobante seguía pendiente.
+    setPalcos(prev => {
+      const nuevosPalcos = prev.map(p => {
+        if (p.numero !== reservaParaPago.palco) return p;
+
+        if (p.tipo === 'completo') {
+          return {
+            ...p,
+            estado: 'reservado',
+            reservas: [{
+              nombre: reservaParaPago.nombre,
+              cedula: reservaParaPago.cedula,
+              telefono: reservaParaPago.telefono,
+              correo: reservaParaPago.correo,
+              vendedor: reservaParaPago.vendedor,
+              estadoPago: 'pendiente_verificacion',
+              pagoId: pagoId
+            }]
+          };
+        }
+
+        const paresDias = parsearDiasReserva(reservaParaPago.dias, Number(reservaParaPago.cantidad) || 1);
+        const nuevasReservas = { ...p.reservas };
+        paresDias.forEach(({ dia, cantidad }) => {
+          if (!nuevasReservas[dia] || !Array.isArray(nuevasReservas[dia])) {
+            nuevasReservas[dia] = [];
+          }
+          nuevasReservas[dia] = [
+            ...nuevasReservas[dia],
+            {
+              nombre: reservaParaPago.nombre,
+              cedula: reservaParaPago.cedula,
+              telefono: reservaParaPago.telefono,
+              correo: reservaParaPago.correo,
+              vendedor: reservaParaPago.vendedor,
+              cantidad,
+              estadoPago: 'pendiente_verificacion',
+              pagoId: pagoId
+            }
+          ];
+        });
+        return { ...p, reservas: nuevasReservas };
+      });
+
+      firebaseSyncService.sincronizarPalcos(nuevosPalcos);
+      return nuevosPalcos;
+    });
+
     agregarAlHistorico(
-      'Comprobante Enviado', 
+      'Comprobante Enviado',
       `${metodo.nombre} - $${Number(pagoData.montoEnviado || reservaParaPago.monto).toLocaleString()} - ${reservaParaPago.nombre} (Esperando verificación)`,
       {
         cedula: reservaParaPago.cedula,
@@ -1656,147 +1738,100 @@ const handleVerificarPagoVendedor = async (pagoPendiente, aprobado, observacione
         mostrarMensaje('error', '❌ Error: No se encontró la reserva');
         return;
       }
-      
-      // Lógica para pagos de la app vendedor
-      if (reserva.tipoPalco === 'sillas_especificas' && reserva.diasEspecificos) {
-        console.log('🔍 Procesando palco por sillas específicas');
+
+      // ✅ Marcar el pago como resuelto en Firebase ANTES de aplicar cambios.
+      // Antes esto nunca se hacía, así que el pago se quedaba "pendiente"
+      // para siempre en Firebase y podía reaparecer y aprobarse dos veces
+      // (ingreso duplicado, venta duplicada, ocupación inflada).
+      try {
+        await firebaseSyncService.resolverPagoVendedor(
+          pagoPendiente.id,
+          true,
+          user?.displayName || user?.email || 'Vendedor'
+        );
+      } catch (error) {
+        console.error('❌ No se pudo marcar el pago como resuelto en Firebase:', error);
+        mostrarMensaje('error', '❌ Error de conexión: no se pudo confirmar el pago. Intenta de nuevo.');
+        return;
+      }
+
+      // Lógica para pagos de la app vendedor. La reserva ya se marcó como
+      // "reservado" (pendiente de verificación) en palco.reservas desde que
+      // se envió el comprobante (handleEnviarComprobante), así que aquí solo
+      // hay que CONFIRMARLA (buscarla por pagoId y quitarle la marca de
+      // pendiente) — no volver a agregarla, porque eso la duplicaría.
+      if (reserva.tipoPalco === 'completo' || reserva.cantidad === '10 sillas (completo)') {
         setPalcos(prev => {
           const nuevosPalcos = prev.map(p => {
             if (p.numero !== reserva.palco) return p;
-            
-            const nuevasReservas = { ...p.reservas };
-            
-            reserva.diasEspecificos.forEach(({ dia, cantidad }) => {
-              if (!nuevasReservas[dia] || !Array.isArray(nuevasReservas[dia])) {
-                nuevasReservas[dia] = [];
-              }
-              nuevasReservas[dia] = [
-                ...nuevasReservas[dia],
-                {
-                  nombre: reserva.nombre,
-                  cedula: reserva.cedula,
-                  telefono: reserva.telefono,
-                  correo: reserva.correo,
-                  vendedor: reserva.vendedor,
-                  cantidad: cantidad
-                }
-              ];
-            });
-            
-            return { ...p, reservas: nuevasReservas };
+            const yaEstabaReservado = (p.reservas || []).some(r => r.pagoId === pagoPendiente.id);
+            return {
+              ...p,
+              estado: 'vendido',
+              reservas: yaEstabaReservado
+                ? p.reservas.map(r => r.pagoId === pagoPendiente.id ? { ...r, estadoPago: 'confirmado' } : r)
+                : [{
+                    nombre: reserva.nombre,
+                    cedula: reserva.cedula,
+                    telefono: reserva.telefono,
+                    correo: reserva.correo,
+                    vendedor: reserva.vendedor,
+                    estadoPago: 'confirmado'
+                  }]
+            };
           });
-          
-          firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-          return nuevosPalcos;
-        });
-      } else if (reserva.tipoPalco === 'completo' || reserva.cantidad === '10 sillas (completo)') {
-        console.log('🔍 Procesando palco completo');
-        setPalcos(prev => {
-          const nuevosPalcos = prev.map(p =>
-            p.numero === reserva.palco
-              ? { ...p, estado: 'vendido', reservas: [{ 
-                  nombre: reserva.nombre,
-                  cedula: reserva.cedula,
-                  telefono: reserva.telefono,
-                  correo: reserva.correo,
-                  vendedor: reserva.vendedor
-                }]}
-              : p
-          );
-          
+
           firebaseSyncService.sincronizarPalcos(nuevosPalcos);
           return nuevosPalcos;
         });
       } else {
-        // Para palcos por sillas normales
-        console.log('🔍 Procesando palco por sillas normal');
-        console.log('🔍 Reserva:', reserva);
-        console.log('🔍 Días de reserva:', reserva.dias);
-        console.log('🔍 Tipo de días:', typeof reserva.dias);
-        
-        // 🆕 CORRECCIÓN: Función mejorada para procesar días de reserva
-        const procesarDiasReserva = (diasReserva) => {
-          let diasArray = [];
-          
-          if (Array.isArray(diasReserva)) {
-            // Si ya es un array, usarlo directamente
-            diasArray = diasReserva;
-          } else if (typeof diasReserva === 'string') {
-            if (diasReserva === 'Todos los días') {
-              diasArray = ['viernes', 'sabado', 'domingo'];
-            } else if (diasReserva.includes(':')) {
-              // Formato "viernes: 2, sabado: 3"
-              const diasParseados = diasReserva.split(', ');
-              diasParseados.forEach(diaStr => {
-                const [diaNombre, cantidad] = diaStr.split(': ');
-                if (diaNombre && cantidad) {
-                  const cantidadNum = parseInt(cantidad);
-                  for (let i = 0; i < cantidadNum; i++) {
-                    diasArray.push(diaNombre.trim());
-                  }
-                }
-              });
-            } else {
-              // Formato simple "viernes, sabado"
-              diasArray = diasReserva.split(', ');
-            }
-          } else {
-            // Fallback: usar el filtro actual
-            diasArray = [filtroDia];
-          }
-          
-          console.log('🔍 Días procesados:', diasArray);
-          return diasArray;
-        };
-        
-        const diasProcesados = procesarDiasReserva(reserva.dias);
-        const cantidadPorDia = Number(reserva.cantidad) || 1;
-        
-        console.log('🔍 Días procesados:', diasProcesados);
-        console.log('🔍 Cantidad por día:', cantidadPorDia);
-        
+        // Para palcos por sillas
+        const paresDias = parsearDiasReserva(reserva.dias, Number(reserva.cantidad) || 1);
+
         setPalcos(prev => {
           const nuevosPalcos = prev.map(p => {
             if (p.numero !== reserva.palco) return p;
-            
-            console.log('🔍 Actualizando palco:', p.numero);
+
             const nuevasReservas = { ...p.reservas };
-            
-            // 🆕 CORRECCIÓN: Agregar la reserva a cada día especificado
-            diasProcesados.forEach(dia => {
-              if (!nuevasReservas[dia] || !Array.isArray(nuevasReservas[dia])) {
-                nuevasReservas[dia] = [];
+            let seEncontroPendiente = false;
+
+            paresDias.forEach(({ dia }) => {
+              const listaDia = nuevasReservas[dia] || [];
+              const index = listaDia.findIndex(r => r.pagoId === pagoPendiente.id);
+              if (index !== -1) {
+                seEncontroPendiente = true;
+                nuevasReservas[dia] = listaDia.map((r, i) =>
+                  i === index ? { ...r, estadoPago: 'confirmado' } : r
+                );
               }
-              
-              // Agregar la reserva con la cantidad correcta
-              nuevasReservas[dia].push({
-                nombre: reserva.nombre,
-                cedula: reserva.cedula,
-                telefono: reserva.telefono,
-                correo: reserva.correo,
-                vendedor: reserva.vendedor,
-                cantidad: cantidadPorDia,
-                fechaReserva: new Date().toISOString(),
-                estado: 'confirmada'
-              });
-              
-              console.log('🔍 Reserva agregada para día:', dia, 'Cantidad:', cantidadPorDia);
-              console.log('🔍 Total reservas para', dia, ':', nuevasReservas[dia].length);
             });
-            
-            console.log('🔍 Palco actualizado:', { ...p, reservas: nuevasReservas });
+
+            // Respaldo defensivo: si por algún motivo no estaba pre-reservada
+            // (ej. datos antiguos de antes de este arreglo), se agrega ahora.
+            if (!seEncontroPendiente) {
+              paresDias.forEach(({ dia, cantidad }) => {
+                if (!nuevasReservas[dia] || !Array.isArray(nuevasReservas[dia])) {
+                  nuevasReservas[dia] = [];
+                }
+                nuevasReservas[dia] = [
+                  ...nuevasReservas[dia],
+                  {
+                    nombre: reserva.nombre,
+                    cedula: reserva.cedula,
+                    telefono: reserva.telefono,
+                    correo: reserva.correo,
+                    vendedor: reserva.vendedor,
+                    cantidad,
+                    estadoPago: 'confirmado'
+                  }
+                ];
+              });
+            }
+
             return { ...p, reservas: nuevasReservas };
           });
-          
-          console.log('🔍 Todos los palcos actualizados:', nuevosPalcos);
-          
-          // 🆕 CORRECCIÓN: Sincronizar inmediatamente con Firebase
-          firebaseSyncService.sincronizarPalcos(nuevosPalcos).then(() => {
-            console.log('✅ Palcos sincronizados exitosamente con Firebase');
-          }).catch(error => {
-            console.error('❌ Error sincronizando palcos:', error);
-          });
-          
+
+          firebaseSyncService.sincronizarPalcos(nuevosPalcos);
           return nuevosPalcos;
         });
       }
@@ -1828,6 +1863,48 @@ const handleVerificarPagoVendedor = async (pagoPendiente, aprobado, observacione
 
       mostrarMensaje('success', '✅ Pago verificado y venta confirmada exitosamente');
     } else {
+      // ✅ Marcar el pago como rechazado en Firebase (mismo motivo que arriba)
+      try {
+        await firebaseSyncService.resolverPagoVendedor(
+          pagoPendiente.id,
+          false,
+          user?.displayName || user?.email || 'Vendedor',
+          observacionesVendedor
+        );
+      } catch (error) {
+        console.error('❌ No se pudo marcar el pago como rechazado en Firebase:', error);
+        mostrarMensaje('error', '❌ Error de conexión: no se pudo rechazar el pago. Intenta de nuevo.');
+        return;
+      }
+
+      // 🔓 Liberar las sillas/el palco que quedaron reservados mientras se
+      // esperaba verificar el pago (se buscan por pagoId, el mismo que se
+      // asignó al reservarlas en handleEnviarComprobante). Antes esto no
+      // pasaba: si se rechazaba un pago, el palco se quedaba "reservado"
+      // para siempre bloqueando ese cupo.
+      const { reserva: reservaRechazada } = pagoPendiente;
+      if (reservaRechazada) {
+        setPalcos(prev => {
+          const nuevosPalcos = prev.map(p => {
+            if (p.numero !== reservaRechazada.palco) return p;
+
+            if (p.tipo === 'completo') {
+              const teniaEstePago = (p.reservas || []).some(r => r.pagoId === pagoPendiente.id);
+              return teniaEstePago ? { ...p, estado: 'disponible', reservas: [] } : p;
+            }
+
+            const nuevasReservas = { ...p.reservas };
+            Object.keys(nuevasReservas).forEach(dia => {
+              nuevasReservas[dia] = (nuevasReservas[dia] || []).filter(r => r.pagoId !== pagoPendiente.id);
+            });
+            return { ...p, reservas: nuevasReservas };
+          });
+
+          firebaseSyncService.sincronizarPalcos(nuevosPalcos);
+          return nuevosPalcos;
+        });
+      }
+
       agregarAlHistorico(
         'Pago Rechazado',
         `${pagoPendiente.metodoPago} - ${pagoPendiente.reserva.nombre} - Motivo: ${observacionesVendedor}`,
@@ -1839,13 +1916,12 @@ const handleVerificarPagoVendedor = async (pagoPendiente, aprobado, observacione
         }
       );
 
-      mostrarMensaje('error', '❌ Pago rechazado. Cliente debe enviar nuevo comprobante.');
+      mostrarMensaje('error', '❌ Pago rechazado. Las sillas quedaron liberadas y disponibles nuevamente.');
     }
 
-    // 🆕 NUEVO: Los pagos del vendedor NO se sincronizan con Firebase
-    // Solo se procesan localmente y se actualiza el estado del palco
-    console.log('✅ Pago del vendedor procesado localmente');
-
+    // El pago ya quedó marcado como resuelto en Firebase (arriba), así que
+    // no puede reaparecer como pendiente. Esto solo limpia la lista local
+    // para que desaparezca de inmediato sin esperar al listener.
     setPagosPendientes(prev => prev.filter(p => p.id !== pagoPendiente.id));
     
   } catch (error) {
@@ -2254,6 +2330,15 @@ useEffect(() => {
         }
       });
 
+      // 📜 Listener en tiempo real para el HISTÓRICO compartido: antes cada
+      // vendedor solo veía su propio historial (localStorage por navegador).
+      // getHistoricoFiltrado() sigue aplicando la regla de "vendedor ve solo
+      // lo suyo, admin ve todo" sobre estos datos ya centralizados.
+      const unsubscribeHistoricoLive = firebaseSyncService.onHistoricoChange((registros) => {
+        console.log(`🔄 Histórico actualizado en tiempo real: ${registros.length} registros`);
+        setHistorico(registros);
+      });
+
       // Listener para pagos del vendedor (para "Verificar Pagos")
       const unsubscribePagosVendedor = firebaseSyncService.onPagosVendedorChange((pagos) => {
         console.log('🔄 Pagos del vendedor actualizados:', pagos.length);
@@ -2305,6 +2390,7 @@ useEffect(() => {
 
       return () => {
         unsubscribePalcosLive();
+        unsubscribeHistoricoLive();
         unsubscribePagosVendedor();
         unsubscribePagosCliente();
         unsubscribeReservas();
@@ -2531,8 +2617,24 @@ const InstruccionesPago = ({ metodo, monto, reserva }) => {
       }
     }
 
+    // 🔍 Evitar registrar el mismo evento dos veces si se llama muy seguido
+    // (por ejemplo, por un pago que se procesó/reapareció dos veces)
+    const ahora = Date.now();
+    const esDuplicadoReciente = historico.some(h =>
+      h.accion === accion &&
+      (h.palco || '') === (datosCliente.palco || '') &&
+      (h.cedula || '') === (datosCliente.cedula || '') &&
+      (h.vendedor || '') === (datosCliente.vendedor || '') &&
+      h._clienteTimestamp && (ahora - h._clienteTimestamp) < 5000
+    );
+
+    if (esDuplicadoReciente) {
+      console.warn('⚠️ Registro de histórico duplicado detectado, se omite:', accion, datosCliente);
+      return;
+    }
+
     const nuevoRegistro = {
-      id: Date.now(),
+      _clienteTimestamp: ahora,
       fecha: new Date().toLocaleString('es-CO'),
       accion,
       detalles: detallesString,
@@ -2543,7 +2645,14 @@ const InstruccionesPago = ({ metodo, monto, reserva }) => {
       cantidad: datosCliente.cantidad || '',
       dias: datosCliente.dias || ''
     };
-    setHistorico(prev => [nuevoRegistro, ...prev]);
+
+    // 📜 Guardar en el histórico compartido de Firebase. El listener
+    // onHistoricoChange actualiza el estado local `historico` cuando
+    // Firebase confirma el registro (así todos los admins lo ven, y cada
+    // vendedor lo sigue filtrando a solo lo suyo con getHistoricoFiltrado).
+    firebaseSyncService.agregarHistorico(nuevoRegistro).catch((error) => {
+      console.error('❌ Error guardando en histórico compartido:', error);
+    });
   };
 
   // Función para filtrar histórico
@@ -2604,9 +2713,8 @@ const InstruccionesPago = ({ metodo, monto, reserva }) => {
       const coincidePalco = !filtrosHistorico.palco || 
         registro.palco.toString().includes(filtrosHistorico.palco);
       
-      const coincideAccion = filtrosHistorico.accion === 'todas' || 
-        registro.accion === filtrosHistorico.accion;
-      
+      const coincideAccion = accionPerteneceACategoria(registro.accion, filtrosHistorico.accion);
+
       return coincideCedula && coincideVendedor && coincidePalco && coincideAccion;
     });
   };
@@ -2983,10 +3091,38 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
     } else {
       const reservasDia = palco.reservas[dia] || [];
       const sillasOcupadas = reservasDia.reduce((sum, r) => sum + r.cantidad, 0);
+      // Mientras haya sillas ocupadas por un pago aún no verificado, el
+      // palco no debe verse como "vendido" todavía, aunque esté al 100%.
+      const hayPendientesDeVerificacion = reservasDia.some(r => r.estadoPago === 'pendiente_verificacion');
       if (sillasOcupadas === 0) return 'disponible';
-      if (sillasOcupadas >= 10) return 'vendido';
+      if (sillasOcupadas >= 10 && !hayPendientesDeVerificacion) return 'vendido';
       return 'reservado';
     }
+  }
+
+  // 📅 Convierte el campo `dias` de una reserva (ej: "viernes: 2 sillas, sabado: 3 sillas",
+  // "Todos los días", o "viernes, sabado") en pares {dia, cantidad} correctos.
+  // ANTES: se expandía el nombre del día una vez por cada silla (para sumar
+  // cantidades) pero luego se volvía a multiplicar por el total al guardar,
+  // duplicando/multiplicando las sillas ocupadas registradas por día.
+  function parsearDiasReserva(diasReserva, cantidadTotalFallback = 1) {
+    if (Array.isArray(diasReserva)) {
+      return diasReserva; // ya viene como [{dia, cantidad}]
+    }
+    if (typeof diasReserva !== 'string' || !diasReserva.trim()) {
+      return [];
+    }
+    if (diasReserva === 'Todos los días') {
+      return ['viernes', 'sabado', 'domingo'].map(dia => ({ dia, cantidad: cantidadTotalFallback }));
+    }
+    if (diasReserva.includes(':')) {
+      return diasReserva.split(', ').map(diaStr => {
+        const [diaNombre, cantidadTexto] = diaStr.split(': ');
+        return { dia: (diaNombre || '').trim(), cantidad: parseInt(cantidadTexto) || 1 };
+      }).filter(d => d.dia);
+    }
+    // Formato simple "viernes, sabado" sin cantidad explícita por día
+    return diasReserva.split(', ').map(dia => ({ dia: dia.trim(), cantidad: cantidadTotalFallback })).filter(d => d.dia);
   }
 
   function getSillasDisponibles(palco, dia) {
@@ -3485,6 +3621,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
             }
             resultados.push({
               palco: palco.numero,
+              palcoObj: palco,
               tipo: 'completo',
               dias: [...DIAS],
               cantidad: 10,
@@ -3508,6 +3645,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
               }
               resultados.push({
                 palco: palco.numero,
+                palcoObj: palco,
                 tipo: 'sillas',
                 dia,
                 cantidad: reserva.cantidad,
@@ -4098,10 +4236,10 @@ const handleConfirmarReservaEspecifica = async (e) => {
             {/* 💳 VERIFICAR PAGOS VENDEDOR */}
             <ProtectedComponent permission="verify_payments">
               <div style={{
-                background: `linear-gradient(135deg, ${pagosPendientes.length > 0 ? colors.primaryRed : colors.primaryGold} 0%, ${colors.darkBrown} 100%)`,
+                background: `linear-gradient(135deg, ${getPagosPendientesFiltrados().length > 0 ? colors.primaryRed : colors.primaryGold} 0%, ${colors.darkBrown} 100%)`,
                 borderRadius: '16px',
                 padding: '16px',
-                boxShadow: `0 6px 20px rgba(${pagosPendientes.length > 0 ? '196, 48, 43' : '217, 119, 6'}, 0.3)`,
+                boxShadow: `0 6px 20px rgba(${getPagosPendientesFiltrados().length > 0 ? '196, 48, 43' : '217, 119, 6'}, 0.3)`,
                 transition: 'all 0.3s ease',
                 cursor: 'pointer',
                 border: 'none',
@@ -4115,11 +4253,11 @@ const handleConfirmarReservaEspecifica = async (e) => {
               onClick={() => setShowVerificacionPagos(true)}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-8px) scale(1.02)';
-                e.target.style.boxShadow = `0 12px 30px rgba(${pagosPendientes.length > 0 ? '196, 48, 43' : '217, 119, 6'}, 0.4)`;
+                e.target.style.boxShadow = `0 12px 30px rgba(${getPagosPendientesFiltrados().length > 0 ? '196, 48, 43' : '217, 119, 6'}, 0.4)`;
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = `0 6px 20px rgba(${pagosPendientes.length > 0 ? '196, 48, 43' : '217, 119, 6'}, 0.3)`;
+                e.target.style.boxShadow = `0 6px 20px rgba(${getPagosPendientesFiltrados().length > 0 ? '196, 48, 43' : '217, 119, 6'}, 0.3)`;
               }}
               >
                 <div style={{
@@ -4143,7 +4281,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
                     Verificar Pagos
                   </h4>
                 </div>
-                {pagosPendientes.length > 0 && (
+                {getPagosPendientesFiltrados().length > 0 && (
                   <div style={{
                     position: 'absolute',
                     top: '8px',
@@ -4160,7 +4298,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
                     fontWeight: '700',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
                   }}>
-                    {pagosPendientes.length}
+                    {getPagosPendientesFiltrados().length}
                   </div>
                 )}
               </div>
@@ -4254,7 +4392,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
-              onClick={restaurarBackup}
+              onClick={() => setShowBackupModal(true)}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-8px) scale(1.02)';
                 e.target.style.boxShadow = '0 12px 30px rgba(196, 48, 43, 0.4)';
@@ -4919,6 +5057,8 @@ const handleConfirmarReservaEspecifica = async (e) => {
         buscarReservasPorCedula={buscarReservasPorCedula}
         handleMoverReserva={handleMoverReserva}
         canMoveReservations={canMoveReservations}
+        handleCancelarReserva={handleCancelarReserva}
+        canCancel={canCancel}
       />
 
       {/* Modal de Pagos del Cliente - Mejorado */}
@@ -5224,6 +5364,17 @@ const handleConfirmarReservaEspecifica = async (e) => {
         onGuardarPrecioSugerido={setPrecioPalcoCompleto}
         onGuardarPrecios={guardarPreciosPalcos}
       />
+
+      <BackupModal
+        isOpen={showBackupModal}
+        onClose={() => setShowBackupModal(false)}
+        palcos={palcos}
+        ingresos={ingresos}
+        historico={historico}
+        pagosPendientes={pagosPendientes}
+        creadoPorNombre={user?.displayName || user?.email || 'Admin'}
+        onRestaurar={restaurarDesdeBackup}
+      />
       
       {/* Modal de Estadísticas Mejorado */}
               <EstadisticasModal
@@ -5279,7 +5430,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
       <VerificacionPagosModal
         isOpen={showVerificacionPagos}
         onClose={() => setShowVerificacionPagos(false)}
-        pagosPendientes={pagosPendientes}
+        pagosPendientes={getPagosPendientesFiltrados()}
         handleVerificarPago={handleVerificarPago}
         loading={loading}
         setShowVerificacionPagos={setShowVerificacionPagos}

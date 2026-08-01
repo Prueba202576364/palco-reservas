@@ -7,7 +7,9 @@ const MisReservasModal = ({
   setBusquedaCedula,
   buscarReservasPorCedula,
   handleMoverReserva,
-  canMoveReservations
+  canMoveReservations,
+  handleCancelarReserva,
+  canCancel
 }) => {
   const deviceInfo = useDeviceDetection();
 
@@ -421,39 +423,74 @@ const MisReservasModal = ({
                         </div>
                       )}
 
-                      {/* Botón de mover reserva (solo para sillas individuales) */}
-                      {r.tipo === 'sillas' && canMoveReservations && canMoveReservations(r.reserva) && (
+                      {/* Botones de mover/cancelar reserva */}
+                      {((r.tipo === 'sillas' && canMoveReservations && canMoveReservations(r.reserva)) ||
+                        (canCancel && canCancel(r.reserva))) && (
                         <div style={{
-                          textAlign: 'center',
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '12px',
+                          justifyContent: 'center',
                           paddingTop: '16px',
                           borderTop: `2px solid ${colors.primaryGold}`
                         }}>
-                          <button
-                            className="btn"
-                            onClick={() => handleMoverReserva(r)}
-                            style={{
-                              backgroundColor: colors.primaryGold,
-                              color: colors.white,
-                              padding: deviceInfo?.isMobile ? '10px 20px' : '12px 24px',
-                              fontSize: deviceInfo?.isMobile ? '14px' : '16px',
-                              border: 'none',
-                              borderRadius: '12px',
-                              cursor: 'pointer',
-                              fontWeight: 'bold',
-                              transition: 'all 0.3s ease',
-                              boxShadow: `0 4px 15px rgba(217, 119, 6, 0.3)`
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.transform = 'translateY(-2px)';
-                              e.target.style.boxShadow = `0 6px 20px rgba(217, 119, 6, 0.4)`;
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.transform = 'translateY(0)';
-                              e.target.style.boxShadow = `0 4px 15px rgba(217, 119, 6, 0.3)`;
-                            }}
-                          >
-                            🔄 Mover a Otro Palco
-                          </button>
+                          {r.tipo === 'sillas' && canMoveReservations && canMoveReservations(r.reserva) && (
+                            <button
+                              className="btn"
+                              onClick={() => handleMoverReserva(r)}
+                              style={{
+                                backgroundColor: colors.primaryGold,
+                                color: colors.white,
+                                padding: deviceInfo?.isMobile ? '10px 20px' : '12px 24px',
+                                fontSize: deviceInfo?.isMobile ? '14px' : '16px',
+                                border: 'none',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                transition: 'all 0.3s ease',
+                                boxShadow: `0 4px 15px rgba(217, 119, 6, 0.3)`
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.transform = 'translateY(-2px)';
+                                e.target.style.boxShadow = `0 6px 20px rgba(217, 119, 6, 0.4)`;
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.transform = 'translateY(0)';
+                                e.target.style.boxShadow = `0 4px 15px rgba(217, 119, 6, 0.3)`;
+                              }}
+                            >
+                              🔄 Mover a Otro Palco
+                            </button>
+                          )}
+
+                          {canCancel && canCancel(r.reserva) && (
+                            <button
+                              className="btn"
+                              onClick={() => handleCancelarReserva(r.palcoObj, r.reserva, r.tipo === 'sillas' ? r.dia : null)}
+                              style={{
+                                backgroundColor: colors.primaryRed,
+                                color: colors.white,
+                                padding: deviceInfo?.isMobile ? '10px 20px' : '12px 24px',
+                                fontSize: deviceInfo?.isMobile ? '14px' : '16px',
+                                border: 'none',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                transition: 'all 0.3s ease',
+                                boxShadow: `0 4px 15px rgba(196, 48, 43, 0.3)`
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.transform = 'translateY(-2px)';
+                                e.target.style.boxShadow = `0 6px 20px rgba(196, 48, 43, 0.4)`;
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.transform = 'translateY(0)';
+                                e.target.style.boxShadow = `0 4px 15px rgba(196, 48, 43, 0.3)`;
+                              }}
+                            >
+                              🗑️ Cancelar Reserva
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
