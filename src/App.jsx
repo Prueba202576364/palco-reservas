@@ -123,19 +123,34 @@ const TODOS_LOS_PALCOS = Array.from({length: 40}, (_, i) => i + 1);
 
 const DIAS = ['viernes', 'sabado', 'domingo'];
 
-// 🪑 Todos los palcos inician como venta por sillas. El admin puede
-// convertir individualmente cualquiera a "completo" desde el panel
-// (botón "Convertir a completo") cuando lo necesite.
+// 📦 Todos los palcos inician como "completo" a $1.200.000, excepto el
+// 5, 6 y 7 que inician como venta "por sillas" a $150.000/día. El admin
+// puede convertir individualmente cualquiera desde el panel cuando lo
+// necesite (botones "Convertir a sillas" / "Convertir a completo").
+const PALCOS_SILLAS_INICIAL = [5, 6, 7];
+const PRECIO_COMPLETO_INICIAL = 1200000;
+
 function crearPalcosIniciales() {
-  return TODOS_LOS_PALCOS.map(numero => ({
-    numero,
-    tipo: 'sillas',
-    reservas: {
-      viernes: [],
-      sabado: [],
-      domingo: [],
-    },
-  }));
+  return TODOS_LOS_PALCOS.map(numero => {
+    if (PALCOS_SILLAS_INICIAL.includes(numero)) {
+      return {
+        numero,
+        tipo: 'sillas',
+        reservas: {
+          viernes: [],
+          sabado: [],
+          domingo: [],
+        },
+      };
+    }
+    return {
+      numero,
+      tipo: 'completo',
+      estado: 'disponible',
+      precio: PRECIO_COMPLETO_INICIAL,
+      reservas: [],
+    };
+  });
 }
 
 // 🆕 COMPONENTE DE DEBUG: Para diagnosticar problemas de sincronización
@@ -3043,9 +3058,9 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
   // hasta que se confirme el valor definitivo (1.000.000 o 1.200.000, y si aplica por día).
   const PRECIO_PALCO_COMPLETO = precioPalcoCompleto;
   const PRECIO_SILLA = {
-    viernes: 120000,
-    sabado: 120000,
-    domingo: 120000,
+    viernes: 150000,
+    sabado: 150000,
+    domingo: 150000,
   };
   const METODOS_PAGO = {
     efectivo: {
