@@ -1583,39 +1583,37 @@ if (!pagoData.montoEnviado || pagoData.montoEnviado <= 0) {
     
     let imagenURL = null;
     let driveInfo = null; // 🆕 NUEVO: Información de Google Drive
-    
-         // Si hay imagen, procesarla a Base64 Y SUBIR A GOOGLE DRIVE
-     if (pagoData.imagenComprobante) {
-       try {
-         // Procesar imagen a Base64 y subir a Google Drive
-         const imagenComprobante = await imageService.procesarComprobante(pagoData.imagenComprobante, pagoId, {
-           cliente: reservaParaPago.nombre,
-           cedula: reservaParaPago.cedula,
-           palco: reservaParaPago.palco,
-           monto: reservaParaPago.monto,
-           metodoPago: metodo.nombre
-         });
-         
-         imagenURL = imagenComprobante.data;
-         driveInfo = imagenComprobante.driveInfo; // 🆕 NUEVO: Info de Google Drive
-         
-         console.log('✅ Comprobante procesado:', {
-           tamaño: imageService.formatearTamaño(imagenComprobante.size),
-           dimensiones: imagenComprobante.dimensions,
-           driveUrl: driveInfo?.driveUrl || 'No subido a Drive'
-         });
-         
-         // 🆕 NUEVO: Mostrar mensaje de éxito con Drive
-         if (driveInfo) {
-           mostrarMensaje('success', `✅ Comprobante subido a Google Drive: ${driveInfo.driveUrl}`);
-         }
-         
-       } catch (error) {
-         console.error('❌ Error procesando comprobante:', error);
-         mostrarMensaje('error', `Error procesando imagen: ${error.message}`);
-         return;
-       }
-     }
+    let fallaImagen = null; // 🆕 Si la imagen falla, NO se pierde la reserva completa
+
+    // Si hay imagen, procesarla a Base64. Si falla (formato no soportado,
+    // archivo muy grande, etc.) NO se aborta el envío: antes esto perdía
+    // TODA la reserva sin dejar rastro (ni en "Verificar Pagos" ni en
+    // ningún lado). Ahora la reserva se guarda igual, sin imagen, y el
+    // vendedor ve un aviso claro de qué pasó para volver a intentarlo.
+    if (pagoData.imagenComprobante) {
+      try {
+        const imagenComprobante = await imageService.procesarComprobante(pagoData.imagenComprobante, pagoId, {
+          cliente: reservaParaPago.nombre,
+          cedula: reservaParaPago.cedula,
+          palco: reservaParaPago.palco,
+          monto: reservaParaPago.monto,
+          metodoPago: metodo.nombre
+        });
+
+        imagenURL = imagenComprobante.data;
+        driveInfo = imagenComprobante.driveInfo;
+
+        console.log('✅ Comprobante procesado:', {
+          tamaño: imageService.formatearTamaño(imagenComprobante.size),
+          dimensiones: imagenComprobante.dimensions,
+          driveUrl: driveInfo?.driveUrl || 'No subido a Drive'
+        });
+
+      } catch (error) {
+        console.error('❌ Error procesando comprobante (la reserva se guarda igual):', error);
+        fallaImagen = error.message;
+      }
+    }
 
     const pagoPendiente = {
       id: pagoId,
@@ -1708,7 +1706,11 @@ if (!pagoData.montoEnviado || pagoData.montoEnviado <= 0) {
       }
     );
 
-    mostrarMensaje('success', `✅ Comprobante enviado por $${Number(pagoData.montoEnviado || reservaParaPago.monto).toLocaleString()}. Esperando verificación del vendedor...`);
+    if (fallaImagen) {
+      mostrarMensaje('warning', `⚠️ La reserva se guardó y aparece en "Verificar Pagos", pero la imagen del comprobante no se pudo adjuntar (${fallaImagen}). Pídele al cliente que reenvíe la foto o verifica con el número de referencia.`);
+    } else {
+      mostrarMensaje('success', `✅ Comprobante enviado por $${Number(pagoData.montoEnviado || reservaParaPago.monto).toLocaleString()}. Esperando verificación del vendedor...`);
+    }
     setShowPagos(false);
     
   } catch (error) {
@@ -3174,6 +3176,16 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
   }, [filtroEstado, filtroDia, filtroTipo, resetPagination]);
 
   const handleReservar = (palco) => {
+    // 🚫 Un palco completo ya vendido no debe volver a pedir datos.
+    if (palco.tipo === 'completo' && palco.estado === 'vendido') {
+      mostrarMensaje('error', `🚫 El Palco ${palco.numero} ya está vendido. No se puede reservar de nuevo.`);
+      return;
+    }
+    // 🚫 Palco por sillas sin ninguna silla disponible en ningún día.
+    if (palco.tipo !== 'completo' && DIAS.every(dia => getSillasDisponibles(palco, dia) === 0)) {
+      mostrarMensaje('error', `🚫 El Palco ${palco.numero} ya no tiene sillas disponibles en ningún día.`);
+      return;
+    }
     if (palco.tipo === 'completo' && !palco.precio) {
       mostrarMensaje('error', `⚠️ El Palco ${palco.numero} todavía no tiene precio asignado. Ve a "💰 Precio Palco" para configurarlo antes de venderlo.`);
       return;
@@ -4973,12 +4985,16 @@ const handleConfirmarReservaEspecifica = async (e) => {
                   sillasDisponibles = Math.max(...DIAS.map(d => getSillasDisponibles(palco, d)));
                 }
               }
+              const bloqueado = palco.tipo === 'completo'
+                ? palco.estado === 'vendido'
+                : DIAS.every(d => getSillasDisponibles(palco, d) === 0);
               return (
                 <div
                   key={palco.numero}
                   className={`palco ${estado} tipo-${palco.tipo} ${palco.convertido ? 'tipo-convertido' : ''}`}
                   onClick={() => handleReservar(palco)}
-                  style={{ cursor: 'pointer', opacity: 1, position: 'relative' }}
+                  title={bloqueado ? 'Ya vendido / sin sillas disponibles' : undefined}
+                  style={{ cursor: bloqueado ? 'not-allowed' : 'pointer', opacity: bloqueado ? 0.75 : 1, position: 'relative' }}
                 >
                   {/* Indicador de tipo */}
                   <div className={`palco-tipo-indicator ${palco.convertido ? 'convertido' : palco.tipo}`}>
