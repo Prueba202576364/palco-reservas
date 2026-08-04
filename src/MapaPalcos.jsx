@@ -320,7 +320,9 @@ const MapaPalcos = ({
 
   // Calcular palcos disponibles dinámicamente
   const palcosDisponibles = useMemo(() => {
-    return todosPalcos.filter(palco => getEstadoPalco(palco.numero, filtroDia) === 'disponible').length;
+    return todosPalcos.filter(palco =>
+      getEstadoPalco(palco.numero, filtroDia) === 'disponible' && !estaBloqueado(palco.numero)
+    ).length;
   }, [todosPalcos, palcos, filtroDia]);
 
   // Manejar hover del palco (anclado al palco)
