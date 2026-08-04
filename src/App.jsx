@@ -118,8 +118,9 @@ const CloseModalButton = ({ onClose, title = "Cerrar" }) => (
     ✕
   </button>
 );
-// Definir todos los palcos del 1 al 40
-const TODOS_LOS_PALCOS = Array.from({length: 40}, (_, i) => i + 1);
+// Definir todos los palcos del 1 al 38 (nueva distribución del recinto)
+const TOTAL_PALCOS = 38;
+const TODOS_LOS_PALCOS = Array.from({length: TOTAL_PALCOS}, (_, i) => i + 1);
 
 const DIAS = ['viernes', 'sabado', 'domingo'];
 
@@ -325,21 +326,8 @@ function AppContent() {
     if (savedPalcos) {
       const palcosGuardados = JSON.parse(savedPalcos);
       
-      // 🆕 NUEVO: Migración específica para palco 1
-      const palco1 = palcosGuardados.find(p => p.numero === 1);
-      if (palco1 && palco1.tipo !== 'sillas') {
-        console.log('🔍 Migrando palco 1 de', palco1.tipo, 'a sillas');
-        palco1.tipo = 'sillas';
-        palco1.reservas = {
-          viernes: [],
-          sabado: [],
-          domingo: [],
-        };
-        localStorage.setItem('feriaPalcos', JSON.stringify(palcosGuardados));
-      }
-      
       // Verificar si necesitamos migrar para agregar los nuevos palcos
-      if (palcosGuardados.length < 40) {
+      if (palcosGuardados.length < TOTAL_PALCOS) {
         const palcosMigrados = crearPalcosIniciales();
         // Preservar datos existentes de los palcos que ya existían
         palcosGuardados.forEach(palcoExistente => {
@@ -706,8 +694,8 @@ const [pagoData, setPagoData] = useState({
 
   // Función para calcular estadísticas en tiempo real
   const calcularEstadisticas = () => {
-    // Estadísticas generales usando todos los palcos del 1 al 40
-    const totalPalcos = 40; // Todos los palcos del 1 al 40
+    // Estadísticas generales usando todos los palcos del 1 al 38
+    const totalPalcos = TOTAL_PALCOS;
     
     // Contar palcos por tipo y estado
     const palcosCompletos = palcos.filter(p => p.tipo === 'completo');
@@ -1278,7 +1266,7 @@ const [pagoData, setPagoData] = useState({
           // Continuar aunque falle Firebase
         }
         
-        mostrarMensaje('success', '✅ Todos los datos han sido limpiados localmente y en la nube. Incluye los 40 palcos sincronizados con la app de cliente.');
+        mostrarMensaje('success', `✅ Todos los datos han sido limpiados localmente y en la nube. Incluye los ${TOTAL_PALCOS} palcos sincronizados con la app de cliente.`);
       } catch (error) {
         console.error('❌ Error limpiando datos:', error);
         mostrarMensaje('error', '❌ Error limpiando datos. Intenta de nuevo.');
@@ -1506,7 +1494,7 @@ const migrarPalcos = async () => {
     // Sincronizar con Firebase para la app de cliente
     await firebaseSyncService.sincronizarPalcos(palcosMigrados);
     
-    mostrarMensaje('success', 'Migración de palcos completada. Ahora tienes 40 palcos sincronizados con la app de cliente.');
+    mostrarMensaje('success', `Migración de palcos completada. Ahora tienes ${TOTAL_PALCOS} palcos sincronizados con la app de cliente.`);
   } catch (error) {
     console.error('Error en migración:', error);
     mostrarMensaje('error', 'Error en la migración. Los palcos se guardaron localmente pero no se sincronizaron.');
@@ -4971,7 +4959,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
                   <option value={12}>12</option>
                   <option value={18}>18</option>
                   <option value={24}>24</option>
-                  <option value={40}>Todos</option>
+                  <option value={TOTAL_PALCOS}>Todos</option>
                 </select>
               </div>
               <div style={{ fontSize: '14px', color: '#666' }}>

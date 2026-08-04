@@ -1,60 +1,48 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useDeviceDetection } from './hooks/useDeviceDetection';
 
-// Configuración de palcos basada en el mapa del cliente (mismas posiciones)
+// 🗺️ Configuración de palcos según el nuevo plano del recinto (38 palcos,
+// forma de "U"): columna izquierda 1→15 (de abajo hacia arriba), fila
+// inferior 16→23 (de izquierda a derecha), columna derecha 24→38 (de abajo
+// hacia arriba). Ya no hay palcos en la parte superior: ahí van BAHÍA y
+// PREPISTA, que son solo referencia del plano (no se venden).
+const PALCOS_SILLAS_MAPA = [5, 6, 7]; // debe coincidir con PALCOS_SILLAS_INICIAL de App.jsx
+
+const COL_Y_TOP = 100;
+const COL_Y_BOTTOM = 660;
+const COL_STEP = (COL_Y_BOTTOM - COL_Y_TOP) / 14; // 14 espacios entre 15 palcos
+
 const CONFIGURACION_PALCOS = {
-  // Palcos superiores (VIP 1-13)
-  superior: [
-    { numero: 1, x: 355, y: 50, tipo: 'completo' },
-    { numero: 2, x: 400, y: 50, tipo: 'completo' },
-    { numero: 3, x: 445, y: 50, tipo: 'sillas' },
-    { numero: 4, x: 490, y: 50, tipo: 'completo' },
-    { numero: 5, x: 535, y: 50, tipo: 'completo' },
-    { numero: 6, x: 580, y: 50, tipo: 'completo' },
-    { numero: 7, x: 625, y: 50, tipo: 'completo' },
-    { numero: 8, x: 670, y: 50, tipo: 'completo' },
-    { numero: 9, x: 715, y: 50, tipo: 'completo' },
-    { numero: 10, x: 760, y: 50, tipo: 'completo' },
-    { numero: 11, x: 805, y: 50, tipo: 'completo' },
-    { numero: 12, x: 850, y: 50, tipo: 'completo' },
-    { numero: 13, x: 895, y: 50, tipo: 'completo' },
-  ],
-  // Palcos laterales izquierdos
-  lateralIzquierdo: [
-    { numero: 14, x: 300, y: 130, tipo: 'sillas' },
-    { numero: 15, x: 300, y: 175, tipo: 'completo' },
-    { numero: 16, x: 300, y: 220, tipo: 'completo' },
-    { numero: 17, x: 300, y: 265, tipo: 'completo' },
-    { numero: 18, x: 300, y: 310, tipo: 'completo' },
-    { numero: 19, x: 300, y: 355, tipo: 'completo' },
-    { numero: 20, x: 300, y: 400, tipo: 'completo' },
-  ],
-  // Palcos laterales derechos
-  lateralDerecho: [
-    { numero: 21, x: 920, y: 130, tipo: 'sillas' },
-    { numero: 22, x: 920, y: 175, tipo: 'completo' },
-    { numero: 23, x: 920, y: 220, tipo: 'completo' },
-    { numero: 24, x: 920, y: 265, tipo: 'completo' },
-    { numero: 25, x: 920, y: 310, tipo: 'completo' },
-    { numero: 26, x: 920, y: 355, tipo: 'completo' },
-    { numero: 27, x: 920, y: 400, tipo: 'completo' },
-  ],
-  // Palcos inferiores (mismos x/y que cliente)
-  inferior: [
-    { numero: 28, x: 355, y: 470, tipo: 'completo' },
-    { numero: 29, x: 400, y: 470, tipo: 'completo' },
-    { numero: 30, x: 445, y: 470, tipo: 'completo' },
-    { numero: 31, x: 490, y: 470, tipo: 'completo' },
-    { numero: 32, x: 535, y: 470, tipo: 'completo' },
-    { numero: 33, x: 580, y: 470, tipo: 'sillas' },
-    { numero: 34, x: 625, y: 470, tipo: 'completo' },
-    { numero: 35, x: 670, y: 470, tipo: 'completo' },
-    { numero: 36, x: 715, y: 470, tipo: 'completo' },
-    { numero: 37, x: 760, y: 470, tipo: 'completo' },
-    { numero: 38, x: 805, y: 470, tipo: 'completo' },
-    { numero: 39, x: 850, y: 470, tipo: 'completo' },
-    { numero: 40, x: 895, y: 470, tipo: 'completo' },
-  ]
+  // Columna izquierda: 1 (abajo) → 15 (arriba)
+  lateralIzquierdo: Array.from({ length: 15 }, (_, i) => {
+    const numero = i + 1;
+    return {
+      numero,
+      x: 250,
+      y: COL_Y_BOTTOM - i * COL_STEP,
+      tipo: PALCOS_SILLAS_MAPA.includes(numero) ? 'sillas' : 'completo'
+    };
+  }),
+  // Fila inferior: 16 → 23, de izquierda a derecha
+  inferior: Array.from({ length: 8 }, (_, i) => {
+    const numero = i + 16;
+    return {
+      numero,
+      x: 340 + i * 80,
+      y: 740,
+      tipo: PALCOS_SILLAS_MAPA.includes(numero) ? 'sillas' : 'completo'
+    };
+  }),
+  // Columna derecha: 24 (abajo) → 38 (arriba)
+  lateralDerecho: Array.from({ length: 15 }, (_, i) => {
+    const numero = i + 24;
+    return {
+      numero,
+      x: 990,
+      y: COL_Y_BOTTOM - i * COL_STEP,
+      tipo: PALCOS_SILLAS_MAPA.includes(numero) ? 'sillas' : 'completo'
+    };
+  })
 };
 
 const MapaPalcos = ({ 
@@ -114,50 +102,45 @@ const MapaPalcos = ({
     const margin = 20;
 
     let tooltipX; let tooltipY; let arrowDirection = 'down';
-    const esInferior = palcoMapa.numero >= 28 && palcoMapa.numero <= 40;
-    const esSuperior = palcoMapa.numero >= 1 && palcoMapa.numero <= 13;
+    // Nuevo plano en forma de "U": columna izquierda 1-15, fila inferior
+    // 16-23, columna derecha 24-38 (ya no hay fila superior de palcos).
+    const esInferior = palcoMapa.numero >= 16 && palcoMapa.numero <= 23;
+    const esLateralIzquierdo = palcoMapa.numero >= 1 && palcoMapa.numero <= 15;
+    const esLateralDerecho = palcoMapa.numero >= 24 && palcoMapa.numero <= 38;
 
-    if (esSuperior) {
-      tooltipX = palcoX - tooltipWidth / 2;
-      tooltipY = palcoY - (tooltipHeight + margin + 8); // un poco más arriba para que no tape el círculo
-      arrowDirection = 'down';
-      // Mantener centrado incluso si se acerca a los bordes (sin clamps horizontales)
-    } else if (esInferior) {
+    const svgW = 1200;
+    const svgH = 880;
+
+    if (esInferior) {
       tooltipX = palcoX - tooltipWidth / 2;
       tooltipY = palcoY + margin + 10;
       arrowDirection = 'up';
-      if (tooltipY + tooltipHeight > 700) tooltipY = 700 - tooltipHeight - 10;
+      if (tooltipY + tooltipHeight > svgH) tooltipY = svgH - tooltipHeight - 10;
       if (tooltipX < 10) tooltipX = 10;
-      if (tooltipX + tooltipWidth > 900) {
-        // Mantener secuencia por la derecha como en el cliente
-        const baseX = 630; // posición base (al nivel del 37)
-        const incremento = 45;
-        const indice = palcoMapa.numero - 37; // 1->38, 2->39, 3->40
-        tooltipX = baseX + (indice * incremento);
-      }
-    } else if (palcoMapa.numero >= 14 && palcoMapa.numero <= 20) {
+      if (tooltipX + tooltipWidth > svgW) tooltipX = svgW - tooltipWidth - 10;
+    } else if (esLateralIzquierdo) {
       tooltipX = palcoX - tooltipWidth - margin;
       tooltipY = palcoY - tooltipHeight / 2;
       arrowDirection = 'right';
       if (tooltipX < 10) { tooltipX = palcoX + margin; arrowDirection = 'left'; }
-    } else if (palcoMapa.numero >= 21 && palcoMapa.numero <= 27) {
+    } else if (esLateralDerecho) {
       tooltipX = palcoX + margin;
       tooltipY = palcoY - tooltipHeight / 2;
       arrowDirection = 'left';
+      if (tooltipX + tooltipWidth > svgW - 10) { tooltipX = palcoX - tooltipWidth - margin; arrowDirection = 'right'; }
     } else {
       tooltipX = palcoX - tooltipWidth / 2;
       tooltipY = palcoY - tooltipHeight - margin;
       arrowDirection = 'down';
     }
 
-    // Límites del SVG (900x700)
+    // Límites del SVG
     if (arrowDirection !== 'left' && arrowDirection !== 'right') {
-      if (!esSuperior && tooltipX < 10) tooltipX = 10;
-      // Para palcos superiores e inferiores, no forzar el límite derecho para mantener centrado sobre el palco
-      if (!esInferior && !esSuperior && (tooltipX + tooltipWidth > 900)) tooltipX = 900 - tooltipWidth - 10;
-      // No elevar el tooltip hacia abajo en la fila superior; permitir que quede por encima del palco
-      if (!esSuperior && tooltipY < 10) tooltipY = 10;
-      if (tooltipY + tooltipHeight > 700) tooltipY = 700 - tooltipHeight - 10;
+      if (tooltipY < 10) tooltipY = 10;
+      if (tooltipY + tooltipHeight > svgH) tooltipY = svgH - tooltipHeight - 10;
+    } else {
+      if (tooltipY < 10) tooltipY = 10;
+      if (tooltipY + tooltipHeight > svgH) tooltipY = svgH - tooltipHeight - 10;
     }
 
     return { x: tooltipX, y: tooltipY, arrowDirection };
@@ -166,10 +149,9 @@ const MapaPalcos = ({
   // Obtener todos los palcos del mapa
   const todosPalcos = useMemo(() => {
     return [
-      ...CONFIGURACION_PALCOS.superior,
       ...CONFIGURACION_PALCOS.lateralIzquierdo,
-      ...CONFIGURACION_PALCOS.lateralDerecho,
-      ...CONFIGURACION_PALCOS.inferior
+      ...CONFIGURACION_PALCOS.inferior,
+      ...CONFIGURACION_PALCOS.lateralDerecho
     ];
   }, []);
 
@@ -508,11 +490,13 @@ const MapaPalcos = ({
   });
 
   // Calcular tamaños responsivos
-  const palcoRadius = isMobile ? 20 : 24;
-  const palcoRadiusHover = isMobile ? 26 : 26;
-  const palcoRadiusSelected = isMobile ? 28 : 28;
-  const fontSize = isMobile ? 12 : 13;
-  const fontSizeHover = isMobile ? 14 : 15;
+  // 🆕 Radios reducidos: con 38 palcos en 3 filas/columnas (15/8/15) hay
+  // menos espacio por palco que en el mapa anterior (13/7/7/13).
+  const palcoRadius = isMobile ? 14 : 16;
+  const palcoRadiusHover = isMobile ? 17 : 19;
+  const palcoRadiusSelected = isMobile ? 19 : 21;
+  const fontSize = isMobile ? 10 : 11;
+  const fontSizeHover = isMobile ? 12 : 13;
 
   return (
     <div className="mapa-container-v2" style={{
@@ -614,7 +598,7 @@ const MapaPalcos = ({
             fontWeight: 'bold',
             textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
             lineHeight: '1',
-            animation: palcosDisponibles !== 40 ? 'pulse 2s infinite' : 'none',
+            animation: palcosDisponibles !== todosPalcos.length ? 'pulse 2s infinite' : 'none',
             textAlign: 'center',
             marginBottom: 'clamp(4px, 1vw, 8px)'
           }}>
@@ -836,7 +820,7 @@ const MapaPalcos = ({
       </div>
 
       <svg
-        viewBox="0 0 1200 800"
+        viewBox="0 0 1200 880"
         className="mapa-svg-interactivo"
         style={{ 
           borderTop: 'none',
@@ -863,8 +847,8 @@ const MapaPalcos = ({
       >
         {/* Grupo principal - zoom eliminado */}
         <g
-          transform="translate(0, 110) scale(1)"
-          transformOrigin="600 400"
+          transform="translate(0, 0) scale(1)"
+          transformOrigin="600 440"
         >
           {/* Contenido del mapa */}
           <g>
@@ -955,20 +939,20 @@ const MapaPalcos = ({
               </style>
             </defs>
 
-            {/* Fondo del escenario/arena (idéntico al cliente) */}
+            {/* Fondo del escenario/arena, según el nuevo plano del recinto */}
             <g>
               <rect
-                x="340"
-                y="120"
-                width="540"
-                height="280"
+                x="320"
+                y="100"
+                width="600"
+                height="590"
                 fill="url(#gradientArena)"
                 stroke="#27ae60"
                 strokeWidth="3"
                 rx="20"
                 filter="url(#shadow)"
               />
-              
+
               {/* Gradiente para la arena */}
               <defs>
                 <linearGradient id="gradientArena" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -977,13 +961,13 @@ const MapaPalcos = ({
                   <stop offset="100%" stopColor="#f1c40f" />
                 </linearGradient>
               </defs>
-              
+
               {/* Texto del escenario */}
               <text
-                x="610"
-                y="220"
+                x="620"
+                y="380"
                 textAnchor="middle"
-                fontSize="40"
+                fontSize="36"
                 fontWeight="bold"
                 fill="#27ae60"
                 style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.3))' }}
@@ -991,40 +975,74 @@ const MapaPalcos = ({
                 ARENA PRINCIPAL
               </text>
 
-              <text
-                x="610"
-                y="290"
-                textAnchor="middle"
-                fontSize="33"
-                fill="#27ae60"
-                fontWeight="600"
-              >
+              <text x="620" y="425" textAnchor="middle" fontSize="26" fill="#27ae60" fontWeight="600">
                 Exposición Equina Grado B
               </text>
 
-              <text
-                x="610"
-                y="340"
-                textAnchor="middle"
-                fontSize="28"
-                fill="#27ae60"
-                fontWeight="500"
-              >
+              <text x="620" y="460" textAnchor="middle" fontSize="22" fill="#27ae60" fontWeight="500">
                 11-13 Septiembre 2026
+              </text>
+
+              {/* Mesa técnica */}
+              <rect x="800" y="115" width="110" height="34" rx="6" fill="#f39c12" stroke="#fff" strokeWidth="1.5" />
+              <text x="855" y="137" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#fff">
+                MESA TÉCNICA
               </text>
             </g>
 
-            {/* Etiquetas de secciones (idénticas al cliente) */}
-            <text x="610" y="10" textAnchor="middle" fontSize="15" fontWeight="bold" fill="#27ae60">
-              SUPERIOR
-            </text>
-            <text x="180" y="265" textAnchor="middle" fontSize="16" fill="#27ae60" fontWeight="600">
+            {/* BAHÍA y PREPISTA: solo referencia del plano, no se venden */}
+            <g>
+              <rect x="320" y="20" width="180" height="65" rx="10" fill="#c8b48a" stroke="#8B4513" strokeWidth="2" />
+              <text x="410" y="58" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#3d2b12">
+                BAHÍA
+              </text>
+
+              <rect x="510" y="20" width="280" height="65" rx="10" fill="#c8b48a" stroke="#8B4513" strokeWidth="2" />
+              <text x="650" y="58" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#3d2b12">
+                PREPISTA
+              </text>
+            </g>
+
+            {/* Graderías (público general, no numeradas ni vendibles aquí) */}
+            <g>
+              <rect x="150" y="90" width="55" height="610" rx="10" fill="#f0a94e" stroke="#8B4513" strokeWidth="2" />
+              <text
+                x="177"
+                y="395"
+                textAnchor="middle"
+                fontSize="17"
+                fontWeight="bold"
+                fill="#3d2b12"
+                transform="rotate(-90 177 395)"
+              >
+                GRADERÍAS PARA 700 PERSONAS
+              </text>
+
+              <rect x="340" y="790" width="560" height="55" rx="10" fill="#f0a94e" stroke="#8B4513" strokeWidth="2" />
+              <text x="620" y="823" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#3d2b12">
+                GRADERÍAS PARA 400 PERSONAS
+              </text>
+            </g>
+
+            {/* Entradas/salidas */}
+            <g>
+              <text x="177" y="770" textAnchor="middle" fontSize="22" fill="#8B4513">↕</text>
+              <text x="177" y="793" textAnchor="middle" fontSize="12" fontWeight="600" fill="#3d2b12">Entrada</text>
+              <text x="177" y="806" textAnchor="middle" fontSize="12" fontWeight="600" fill="#3d2b12">Salida</text>
+
+              <text x="1035" y="770" textAnchor="middle" fontSize="22" fill="#8B4513">↕</text>
+              <text x="1035" y="793" textAnchor="middle" fontSize="12" fontWeight="600" fill="#3d2b12">Entrada/Salida</text>
+              <text x="1035" y="806" textAnchor="middle" fontSize="12" fontWeight="600" fill="#3d2b12">VIP</text>
+            </g>
+
+            {/* Etiquetas de secciones */}
+            <text x="180" y="70" textAnchor="middle" fontSize="15" fill="#27ae60" fontWeight="600">
               LATERAL IZQUIERDO
             </text>
-            <text x="1040" y="265" textAnchor="middle" fontSize="16" fill="#27ae60" fontWeight="600">
+            <text x="1060" y="70" textAnchor="middle" fontSize="15" fill="#27ae60" fontWeight="600">
               LATERAL DERECHO
             </text>
-            <text x="610" y="530" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#27ae60">
+            <text x="620" y="705" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#27ae60">
               INFERIOR
             </text>
 
