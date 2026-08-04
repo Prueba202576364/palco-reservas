@@ -1,45 +1,44 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useDeviceDetection } from './hooks/useDeviceDetection';
 
-// 🗺️ Configuración de palcos según el nuevo plano del recinto (38 palcos,
-// forma de "U"): columna izquierda 1→15 (de abajo hacia arriba), fila
-// inferior 16→23 (de izquierda a derecha), columna derecha 24→38 (de abajo
-// hacia arriba). Ya no hay palcos en la parte superior: ahí van BAHÍA y
-// PREPISTA, que son solo referencia del plano (no se venden).
-const PALCOS_SILLAS_MAPA = [5, 6, 7]; // debe coincidir con PALCOS_SILLAS_INICIAL de App.jsx
+// 🗺️ Configuración de palcos según el nuevo plano del recinto (34 palcos,
+// forma de "U" invertida): fila superior 1→13 (de derecha a izquierda),
+// columna izquierda 14→21 (de arriba hacia abajo), fila inferior 22→34
+// (de izquierda a derecha). Ya no hay columna derecha.
+const PALCOS_SILLAS_MAPA = [14, 21, 33, 34]; // debe coincidir con PALCOS_SILLAS_INICIAL de App.jsx
 
-const COL_Y_TOP = 100;
-const COL_Y_BOTTOM = 660;
-const COL_STEP = (COL_Y_BOTTOM - COL_Y_TOP) / 14; // 14 espacios entre 15 palcos
+const ROW_X_LEFT = 140;
+const ROW_X_RIGHT = 920;
+const ROW_STEP = (ROW_X_RIGHT - ROW_X_LEFT) / 12; // 12 espacios entre 13 palcos
 
 const CONFIGURACION_PALCOS = {
-  // Columna izquierda: 1 (abajo) → 15 (arriba)
-  lateralIzquierdo: Array.from({ length: 15 }, (_, i) => {
+  // Fila superior: 1 (derecha) → 13 (izquierda)
+  superior: Array.from({ length: 13 }, (_, i) => {
     const numero = i + 1;
     return {
       numero,
-      x: 250,
-      y: COL_Y_BOTTOM - i * COL_STEP,
+      x: ROW_X_RIGHT - i * ROW_STEP,
+      y: 70,
       tipo: PALCOS_SILLAS_MAPA.includes(numero) ? 'sillas' : 'completo'
     };
   }),
-  // Fila inferior: 16 → 23, de izquierda a derecha
-  inferior: Array.from({ length: 8 }, (_, i) => {
-    const numero = i + 16;
+  // Columna izquierda: 14 (arriba) → 21 (abajo)
+  lateralIzquierdo: Array.from({ length: 8 }, (_, i) => {
+    const numero = i + 14;
     return {
       numero,
-      x: 340 + i * 80,
-      y: 740,
+      x: 60,
+      y: 150 + i * ((630 - 150) / 7),
       tipo: PALCOS_SILLAS_MAPA.includes(numero) ? 'sillas' : 'completo'
     };
   }),
-  // Columna derecha: 24 (abajo) → 38 (arriba)
-  lateralDerecho: Array.from({ length: 15 }, (_, i) => {
-    const numero = i + 24;
+  // Fila inferior: 22 (izquierda) → 34 (derecha)
+  inferior: Array.from({ length: 13 }, (_, i) => {
+    const numero = i + 22;
     return {
       numero,
-      x: 990,
-      y: COL_Y_BOTTOM - i * COL_STEP,
+      x: ROW_X_LEFT + i * ROW_STEP,
+      y: 710,
       tipo: PALCOS_SILLAS_MAPA.includes(numero) ? 'sillas' : 'completo'
     };
   })
@@ -52,6 +51,7 @@ const MapaPalcos = ({
   filtroDia = 'todos',
   onConvertirACompleto,
   onConvertirASillas,
+  onToggleBloqueo,
   canConvertPalcos = () => false,
   PRECIO_SILLA = {}
 }) => {
@@ -102,32 +102,32 @@ const MapaPalcos = ({
     const margin = 20;
 
     let tooltipX; let tooltipY; let arrowDirection = 'down';
-    // Nuevo plano en forma de "U": columna izquierda 1-15, fila inferior
-    // 16-23, columna derecha 24-38 (ya no hay fila superior de palcos).
-    const esInferior = palcoMapa.numero >= 16 && palcoMapa.numero <= 23;
-    const esLateralIzquierdo = palcoMapa.numero >= 1 && palcoMapa.numero <= 15;
-    const esLateralDerecho = palcoMapa.numero >= 24 && palcoMapa.numero <= 38;
+    // Nuevo plano en forma de "U" invertida: fila superior 1-13, columna
+    // izquierda 14-21, fila inferior 22-34 (ya no hay columna derecha).
+    const esSuperior = palcoMapa.numero >= 1 && palcoMapa.numero <= 13;
+    const esLateralIzquierdo = palcoMapa.numero >= 14 && palcoMapa.numero <= 21;
+    const esInferior = palcoMapa.numero >= 22 && palcoMapa.numero <= 34;
 
-    const svgW = 1200;
-    const svgH = 880;
+    const svgW = 1000;
+    const svgH = 800;
 
-    if (esInferior) {
+    if (esSuperior) {
       tooltipX = palcoX - tooltipWidth / 2;
       tooltipY = palcoY + margin + 10;
       arrowDirection = 'up';
-      if (tooltipY + tooltipHeight > svgH) tooltipY = svgH - tooltipHeight - 10;
       if (tooltipX < 10) tooltipX = 10;
       if (tooltipX + tooltipWidth > svgW) tooltipX = svgW - tooltipWidth - 10;
     } else if (esLateralIzquierdo) {
-      tooltipX = palcoX - tooltipWidth - margin;
-      tooltipY = palcoY - tooltipHeight / 2;
-      arrowDirection = 'right';
-      if (tooltipX < 10) { tooltipX = palcoX + margin; arrowDirection = 'left'; }
-    } else if (esLateralDerecho) {
       tooltipX = palcoX + margin;
       tooltipY = palcoY - tooltipHeight / 2;
       arrowDirection = 'left';
       if (tooltipX + tooltipWidth > svgW - 10) { tooltipX = palcoX - tooltipWidth - margin; arrowDirection = 'right'; }
+    } else if (esInferior) {
+      tooltipX = palcoX - tooltipWidth / 2;
+      tooltipY = palcoY - tooltipHeight - margin;
+      arrowDirection = 'down';
+      if (tooltipX < 10) tooltipX = 10;
+      if (tooltipX + tooltipWidth > svgW) tooltipX = svgW - tooltipWidth - 10;
     } else {
       tooltipX = palcoX - tooltipWidth / 2;
       tooltipY = palcoY - tooltipHeight - margin;
@@ -149,9 +149,9 @@ const MapaPalcos = ({
   // Obtener todos los palcos del mapa
   const todosPalcos = useMemo(() => {
     return [
+      ...CONFIGURACION_PALCOS.superior,
       ...CONFIGURACION_PALCOS.lateralIzquierdo,
-      ...CONFIGURACION_PALCOS.inferior,
-      ...CONFIGURACION_PALCOS.lateralDerecho
+      ...CONFIGURACION_PALCOS.inferior
     ];
   }, []);
 
@@ -235,13 +235,23 @@ const MapaPalcos = ({
   };
 
   // Función para obtener el color del palco con mejor gradiente
+  // 🔒 Bloqueado manualmente por un admin (independiente del estado de venta)
+  const estaBloqueado = (numeroPalco) => {
+    const palco = palcos.find(p => p.numero === numeroPalco);
+    return !!palco?.bloqueado;
+  };
+
   const getColorPalco = (numeroPalco, isHovered = false, isSelected = false) => {
     const estado = getEstadoPalco(numeroPalco, filtroDia);
-    
+
     if (isSelected) {
       return 'url(#gradientSelected)';
     }
-    
+
+    if (estaBloqueado(numeroPalco)) {
+      return isHovered ? 'url(#gradientBloqueadoHover)' : 'url(#gradientBloqueado)';
+    }
+
     if (isHovered) {
       switch (estado) {
         case 'vendido':
@@ -253,7 +263,7 @@ const MapaPalcos = ({
           return 'url(#gradientDisponibleHover)';
       }
     }
-    
+
     switch (estado) {
       case 'vendido':
         return 'url(#gradientVendido)';
@@ -276,19 +286,24 @@ const MapaPalcos = ({
     
     let estadoTexto = '';
     let iconoEstado = '';
-    switch (estado) {
-      case 'vendido':
-        estadoTexto = 'Vendido';
-        iconoEstado = '🚫';
-        break;
-      case 'reservado':
-        estadoTexto = 'Reservado';
-        iconoEstado = '⏱️';
-        break;
-      case 'disponible':
-      default:
-        estadoTexto = 'Disponible';
-        iconoEstado = '✅';
+    if (palcoData?.bloqueado) {
+      estadoTexto = 'Bloqueado';
+      iconoEstado = '🔒';
+    } else {
+      switch (estado) {
+        case 'vendido':
+          estadoTexto = 'Vendido';
+          iconoEstado = '🚫';
+          break;
+        case 'reservado':
+          estadoTexto = 'Reservado';
+          iconoEstado = '⏱️';
+          break;
+        case 'disponible':
+        default:
+          estadoTexto = 'Disponible';
+          iconoEstado = '✅';
+      }
     }
 
     return {
@@ -490,7 +505,7 @@ const MapaPalcos = ({
   });
 
   // Calcular tamaños responsivos
-  // 🆕 Radios reducidos: con 38 palcos en 3 filas/columnas (15/8/15) hay
+  // 🆕 Radios reducidos: con 34 palcos en 3 filas/columnas (13/8/13) hay
   // menos espacio por palco que en el mapa anterior (13/7/7/13).
   const palcoRadius = isMobile ? 14 : 16;
   const palcoRadiusHover = isMobile ? 17 : 19;
@@ -820,7 +835,7 @@ const MapaPalcos = ({
       </div>
 
       <svg
-        viewBox="0 0 1200 880"
+        viewBox="0 0 1000 800"
         className="mapa-svg-interactivo"
         style={{ 
           borderTop: 'none',
@@ -887,6 +902,15 @@ const MapaPalcos = ({
                 <stop offset="100%" stopColor="#3498db" />
               </radialGradient>
 
+              <radialGradient id="gradientBloqueado" cx="50%" cy="30%" r="70%">
+                <stop offset="0%" stopColor="#95a5a6" />
+                <stop offset="100%" stopColor="#4a4a4a" />
+              </radialGradient>
+              <radialGradient id="gradientBloqueadoHover" cx="50%" cy="30%" r="70%">
+                <stop offset="0%" stopColor="#b2babb" />
+                <stop offset="100%" stopColor="#7f8c8d" />
+              </radialGradient>
+
               {/* Filtros de efectos */}
               <filter id="glow">
                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -942,107 +966,52 @@ const MapaPalcos = ({
             {/* Fondo del escenario/arena, según el nuevo plano del recinto */}
             <g>
               <rect
-                x="320"
+                x="110"
                 y="100"
-                width="600"
-                height="590"
+                width="780"
+                height="580"
                 fill="url(#gradientArena)"
-                stroke="#27ae60"
+                stroke="#8B4513"
                 strokeWidth="3"
-                rx="20"
+                rx="10"
                 filter="url(#shadow)"
               />
 
               {/* Gradiente para la arena */}
               <defs>
                 <linearGradient id="gradientArena" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#f4d03f" />
-                  <stop offset="50%" stopColor="#f7dc6f" />
-                  <stop offset="100%" stopColor="#f1c40f" />
+                  <stop offset="0%" stopColor="#e9dcc0" />
+                  <stop offset="50%" stopColor="#e3d3ae" />
+                  <stop offset="100%" stopColor="#dcc99e" />
                 </linearGradient>
               </defs>
 
               {/* Texto del escenario */}
               <text
-                x="620"
-                y="380"
+                x="500"
+                y="370"
                 textAnchor="middle"
-                fontSize="36"
+                fontSize="30"
                 fontWeight="bold"
-                fill="#27ae60"
-                style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.3))' }}
+                fill="#8B4513"
+                style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.2))' }}
               >
                 ARENA PRINCIPAL
               </text>
 
-              <text x="620" y="425" textAnchor="middle" fontSize="26" fill="#27ae60" fontWeight="600">
-                Exposición Equina Grado B
+              <text x="500" y="410" textAnchor="middle" fontSize="18" fill="#8B4513" fontWeight="600">
+                PALCOS PÚBLICO · VENTA 1-34
               </text>
-
-              <text x="620" y="460" textAnchor="middle" fontSize="22" fill="#27ae60" fontWeight="500">
-                11-13 Septiembre 2026
-              </text>
-
-              {/* Mesa técnica */}
-              <rect x="800" y="115" width="110" height="34" rx="6" fill="#f39c12" stroke="#fff" strokeWidth="1.5" />
-              <text x="855" y="137" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#fff">
-                MESA TÉCNICA
-              </text>
-            </g>
-
-            {/* BAHÍA y PREPISTA: solo referencia del plano, no se venden */}
-            <g>
-              <rect x="320" y="20" width="180" height="65" rx="10" fill="#c8b48a" stroke="#8B4513" strokeWidth="2" />
-              <text x="410" y="58" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#3d2b12">
-                BAHÍA
-              </text>
-
-              <rect x="510" y="20" width="280" height="65" rx="10" fill="#c8b48a" stroke="#8B4513" strokeWidth="2" />
-              <text x="650" y="58" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#3d2b12">
-                PREPISTA
-              </text>
-            </g>
-
-            {/* Graderías (público general, no numeradas ni vendibles aquí) */}
-            <g>
-              <rect x="150" y="90" width="55" height="610" rx="10" fill="#f0a94e" stroke="#8B4513" strokeWidth="2" />
-              <text
-                x="177"
-                y="395"
-                textAnchor="middle"
-                fontSize="17"
-                fontWeight="bold"
-                fill="#3d2b12"
-                transform="rotate(-90 177 395)"
-              >
-                GRADERÍAS PARA 700 PERSONAS
-              </text>
-
-              <rect x="340" y="790" width="560" height="55" rx="10" fill="#f0a94e" stroke="#8B4513" strokeWidth="2" />
-              <text x="620" y="823" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#3d2b12">
-                GRADERÍAS PARA 400 PERSONAS
-              </text>
-            </g>
-
-            {/* Entradas/salidas */}
-            <g>
-              <text x="177" y="770" textAnchor="middle" fontSize="22" fill="#8B4513">↕</text>
-              <text x="177" y="793" textAnchor="middle" fontSize="12" fontWeight="600" fill="#3d2b12">Entrada</text>
-              <text x="177" y="806" textAnchor="middle" fontSize="12" fontWeight="600" fill="#3d2b12">Salida</text>
-
-              <text x="1035" y="770" textAnchor="middle" fontSize="22" fill="#8B4513">↕</text>
-              <text x="1035" y="793" textAnchor="middle" fontSize="12" fontWeight="600" fill="#3d2b12">Entrada/Salida</text>
-              <text x="1035" y="806" textAnchor="middle" fontSize="12" fontWeight="600" fill="#3d2b12">VIP</text>
             </g>
 
             {/* Etiquetas de secciones */}
-            <text x="180" y="70" textAnchor="middle" fontSize="15" fill="#27ae60" fontWeight="600">
+            <text x="500" y="30" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#27ae60">
+              SUPERIOR
+            </text>
+            <text x="30" y="390" textAnchor="middle" fontSize="14" fill="#27ae60" fontWeight="600" transform="rotate(-90 30 390)">
               LATERAL IZQUIERDO
             </text>
-            <text x="1060" y="70" textAnchor="middle" fontSize="15" fill="#27ae60" fontWeight="600">
-              LATERAL DERECHO
-            </text>
-            <text x="620" y="705" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#27ae60">
+            <text x="500" y="770" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#27ae60">
               INFERIOR
             </text>
 
@@ -1173,6 +1142,30 @@ const MapaPalcos = ({
                     </g>
                   )}
                   
+                  {/* Candado: palco bloqueado manualmente por un admin */}
+                  {info.tipo && estaBloqueado(palcoMapa.numero) && (
+                    <g>
+                      <circle
+                        cx={palcoMapa.x - 18}
+                        cy={palcoMapa.y - 18}
+                        r="7"
+                        fill="#e74c3c"
+                        stroke="white"
+                        strokeWidth="2"
+                        filter="url(#shadow)"
+                      />
+                      <text
+                        x={palcoMapa.x - 18}
+                        y={palcoMapa.y - 15}
+                        textAnchor="middle"
+                        fontSize="9"
+                        style={{ pointerEvents: 'none' }}
+                      >
+                        🔒
+                      </text>
+                    </g>
+                  )}
+
                   {/* Indicador de estado con icono */}
                   {isHovered && (
                     <text
@@ -1272,7 +1265,7 @@ const MapaPalcos = ({
                   x={contextMenu.x}
                   y={contextMenu.y}
                   width="200"
-                  height="120"
+                  height={canConvertPalcos() ? 155 : 120}
                   fill="white"
                   stroke="#2c3e50"
                   strokeWidth="2"
@@ -1329,7 +1322,7 @@ const MapaPalcos = ({
                               handleConvertir(contextMenu.palco, tipoDestino);
                             } : undefined}
                           />
-                          
+
                           <text
                             x={contextMenu.x + 100}
                             y={contextMenu.y + 50}
@@ -1338,17 +1331,46 @@ const MapaPalcos = ({
                             fill={puedeConvertir ? "#2c3e50" : "#7f8c8d"}
                             fontWeight="600"
                           >
-                            {palcoReal?.tipo === 'completo' 
-                              ? '🔄 Convertir a Por Sillas' 
+                            {palcoReal?.tipo === 'completo'
+                              ? '🔄 Convertir a Por Sillas'
                               : '🔄 Convertir a Completo'}
                           </text>
                         </>
                       )}
-                      
-                      {/* Opción 2: Cerrar */}
+
+                      {/* Opción 2: Bloquear/Desbloquear - Solo si tiene permisos */}
+                      {canConvertPalcos() && onToggleBloqueo && (
+                        <>
+                          <rect
+                            x={contextMenu.x + 10}
+                            y={contextMenu.y + 70}
+                            width="180"
+                            height="25"
+                            fill={palcoReal?.bloqueado ? "#27ae60" : "#7f8c8d"}
+                            rx="4"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              onToggleBloqueo(contextMenu.palco.numero);
+                              closeContextMenu();
+                            }}
+                          />
+                          <text
+                            x={contextMenu.x + 100}
+                            y={contextMenu.y + 85}
+                            textAnchor="middle"
+                            fontSize="12"
+                            fill="white"
+                            fontWeight="600"
+                          >
+                            {palcoReal?.bloqueado ? '🔓 Desbloquear palco' : '🔒 Bloquear palco'}
+                          </text>
+                        </>
+                      )}
+
+                      {/* Opción 3: Cerrar */}
                       <rect
                         x={contextMenu.x + 10}
-                        y={contextMenu.y + (canConvertPalcos() ? 70 : 35)}
+                        y={contextMenu.y + (canConvertPalcos() ? 105 : 35)}
                         width="180"
                         height="25"
                         fill="#e74c3c"
@@ -1356,10 +1378,10 @@ const MapaPalcos = ({
                         style={{ cursor: 'pointer' }}
                         onClick={closeContextMenu}
                       />
-                      
+
                       <text
                         x={contextMenu.x + 100}
-                        y={contextMenu.y + (canConvertPalcos() ? 85 : 50)}
+                        y={contextMenu.y + (canConvertPalcos() ? 120 : 50)}
                         textAnchor="middle"
                         fontSize="12"
                         fill="white"
@@ -1367,18 +1389,19 @@ const MapaPalcos = ({
                       >
                         ❌ Cerrar
                       </text>
-                      
+
                       {/* Estado actual */}
                       <text
                         x={contextMenu.x + 100}
-                        y={contextMenu.y + (canConvertPalcos() ? 105 : 70)}
+                        y={contextMenu.y + (canConvertPalcos() ? 140 : 70)}
                         textAnchor="middle"
                         fontSize="10"
                         fill="#7f8c8d"
                       >
-                        Estado: {palcoReal?.tipo === 'completo' ? 'Palco Completo' : 'Por Sillas'}
+                        {palcoReal?.tipo === 'completo' ? 'Palco Completo' : 'Por Sillas'}
+                        {palcoReal?.bloqueado ? ' · 🔒 Bloqueado' : ''}
                       </text>
-                      
+
                       {/* Mensaje de permisos si no tiene acceso */}
                       {!canConvertPalcos() && (
                         <text
@@ -1389,7 +1412,7 @@ const MapaPalcos = ({
                           fill="#e74c3c"
                           fontWeight="600"
                         >
-                          🔒 Solo administradores pueden convertir palcos
+                          🔒 Solo administradores pueden convertir/bloquear palcos
                         </text>
                       )}
                     </g>

@@ -118,25 +118,32 @@ const CloseModalButton = ({ onClose, title = "Cerrar" }) => (
     ✕
   </button>
 );
-// Definir todos los palcos del 1 al 38 (nueva distribución del recinto)
-const TOTAL_PALCOS = 38;
+// Definir todos los palcos del 1 al 34 (nueva distribución del recinto)
+const TOTAL_PALCOS = 34;
 const TODOS_LOS_PALCOS = Array.from({length: TOTAL_PALCOS}, (_, i) => i + 1);
 
 const DIAS = ['viernes', 'sabado', 'domingo'];
 
 // 📦 Todos los palcos inician como "completo" a $1.200.000, excepto el
-// 5, 6 y 7 que inician como venta "por sillas" a $150.000/día. El admin
-// puede convertir individualmente cualquiera desde el panel cuando lo
-// necesite (botones "Convertir a sillas" / "Convertir a completo").
-const PALCOS_SILLAS_INICIAL = [5, 6, 7];
+// 14, 21, 33 y 34 que inician como venta "por sillas" a $150.000/día. El
+// admin puede convertir individualmente cualquiera desde el panel cuando
+// lo necesite (botones "Convertir a sillas" / "Convertir a completo").
+const PALCOS_SILLAS_INICIAL = [14, 21, 33, 34];
 const PRECIO_COMPLETO_INICIAL = 1200000;
+
+// 🔒 Estos palcos ya están reservados/apartados por fuera del sistema
+// (acuerdos previos), así que arrancan "bloqueados": no se pueden vender
+// hasta que un admin los desbloquee manualmente desde el panel.
+const PALCOS_BLOQUEADOS_INICIAL = [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17, 26];
 
 function crearPalcosIniciales() {
   return TODOS_LOS_PALCOS.map(numero => {
+    const bloqueado = PALCOS_BLOQUEADOS_INICIAL.includes(numero);
     if (PALCOS_SILLAS_INICIAL.includes(numero)) {
       return {
         numero,
         tipo: 'sillas',
+        bloqueado,
         reservas: {
           viernes: [],
           sabado: [],
@@ -148,6 +155,7 @@ function crearPalcosIniciales() {
       numero,
       tipo: 'completo',
       estado: 'disponible',
+      bloqueado,
       precio: PRECIO_COMPLETO_INICIAL,
       reservas: [],
     };
@@ -694,7 +702,7 @@ const [pagoData, setPagoData] = useState({
 
   // Función para calcular estadísticas en tiempo real
   const calcularEstadisticas = () => {
-    // Estadísticas generales usando todos los palcos del 1 al 38
+    // Estadísticas generales usando todos los palcos del 1 al 34
     const totalPalcos = TOTAL_PALCOS;
     
     // Contar palcos por tipo y estado
@@ -709,7 +717,7 @@ const [pagoData, setPagoData] = useState({
     const palcosOcupados = palcosCompletosOcupados + palcosSillasOcupados;
   
     // Calcular total de sillas en el sistema
-    const totalSillasSistema = palcos.length * 10; // 40 palcos * 10 sillas cada uno = 400 sillas
+    const totalSillasSistema = palcos.length * 10; // palcos.length * 10 sillas cada uno
     
     // Ocupación por día (todos los palcos)
     const ocupacionPorDia = {};
@@ -717,7 +725,7 @@ const [pagoData, setPagoData] = useState({
       let sillasOcupadas = 0;
       let sillasDisponibles = 0;
       
-      // Recorrer todos los palcos del 1 al 40
+      // Recorrer todos los palcos del 1 al 34
       palcos.forEach(palco => {
         if (palco.tipo === 'completo') {
           // Palcos completos: si están vendidos ocupan 10 sillas, si no están disponibles
@@ -1225,7 +1233,7 @@ const [pagoData, setPagoData] = useState({
         mostrarMensaje('info', '🗑️ Limpiando datos...');
         
         // Limpiar datos en memoria
-      const palcosIniciales = crearPalcosIniciales(); // 40 palcos
+      const palcosIniciales = crearPalcosIniciales(); // TOTAL_PALCOS palcos
       setPalcos(palcosIniciales);
       setIngresos([]);
       setHistorico([]);
@@ -1239,7 +1247,7 @@ const [pagoData, setPagoData] = useState({
       
         // 🔥 SINCRONIZAR CON FIREBASE - LIMPIAR DATOS EN LA NUBE
         try {
-          // Sincronizar palcos vacíos (40 palcos)
+          // Sincronizar palcos vacíos (TOTAL_PALCOS palcos)
           await firebaseSyncService.sincronizarPalcos(palcosIniciales);
           
           // Sincronizar pagos pendientes vacíos
@@ -3179,6 +3187,12 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
   }, [filtroEstado, filtroDia, filtroTipo, resetPagination]);
 
   const handleReservar = (palco) => {
+    // 🔒 Palco bloqueado manualmente por un admin (reservado por fuera del
+    // sistema): no se puede vender hasta que lo desbloqueen.
+    if (palco.bloqueado) {
+      mostrarMensaje('error', `🔒 El Palco ${palco.numero} está bloqueado. Contacta a un administrador para liberarlo.`);
+      return;
+    }
     // 🚫 Un palco completo ya vendido no debe volver a pedir datos.
     if (palco.tipo === 'completo' && palco.estado === 'vendido') {
       mostrarMensaje('error', `🚫 El Palco ${palco.numero} ya está vendido. No se puede reservar de nuevo.`);
@@ -3802,6 +3816,32 @@ const handleConfirmarReservaEspecifica = async (e) => {
     });
     
     mostrarMensaje('success', `Palco ${numeroPalco} ahora es completo.`);
+  };
+
+  // 🔒 Bloquear/desbloquear un palco manualmente (reservado por fuera del
+  // sistema, ej. acuerdo previo por teléfono). Solo admins (canConvertPalcos).
+  // No toca el estado de venta normal (disponible/reservado/vendido), es un
+  // candado aparte que se puede quitar en cualquier momento.
+  const toggleBloqueoPalco = (numeroPalco) => {
+    if (!canConvertPalcos()) {
+      mostrarMensaje('error', '🔒 Solo administradores pueden bloquear o desbloquear palcos');
+      return;
+    }
+    setPalcos(prev => {
+      const palcoActual = prev.find(p => p.numero === numeroPalco);
+      const nuevoBloqueado = !palcoActual?.bloqueado;
+      const nuevosPalcos = prev.map(p =>
+        p.numero === numeroPalco ? { ...p, bloqueado: nuevoBloqueado } : p
+      );
+
+      firebaseSyncService.sincronizarPalcos(nuevosPalcos);
+
+      mostrarMensaje('success', nuevoBloqueado
+        ? `🔒 Palco ${numeroPalco} bloqueado`
+        : `🔓 Palco ${numeroPalco} desbloqueado`);
+
+      return nuevosPalcos;
+    });
   };
 
   // 💰 Guardar precio(s) de palco(s) completo(s) — sirve tanto para editar uno solo
@@ -4925,6 +4965,7 @@ const handleConfirmarReservaEspecifica = async (e) => {
   filtroDia={filtroDia}
   onConvertirACompleto={convertirPalcoACompleto}
   onConvertirASillas={convertirPalcoAporSillas}
+  onToggleBloqueo={toggleBloqueoPalco}
   canConvertPalcos={canConvertPalcos}
   PRECIO_SILLA={PRECIO_SILLA}
 />
@@ -4988,28 +5029,35 @@ const handleConfirmarReservaEspecifica = async (e) => {
                   sillasDisponibles = Math.max(...DIAS.map(d => getSillasDisponibles(palco, d)));
                 }
               }
-              const bloqueado = palco.tipo === 'completo'
+              const bloqueadoPorEstado = palco.tipo === 'completo'
                 ? palco.estado === 'vendido'
                 : DIAS.every(d => getSillasDisponibles(palco, d) === 0);
+              const estaBloqueado = palco.bloqueado || bloqueadoPorEstado;
               return (
                 <div
                   key={palco.numero}
-                  className={`palco ${estado} tipo-${palco.tipo} ${palco.convertido ? 'tipo-convertido' : ''}`}
+                  className={`palco ${palco.bloqueado ? 'bloqueado' : estado} tipo-${palco.tipo} ${palco.convertido ? 'tipo-convertido' : ''}`}
                   onClick={() => handleReservar(palco)}
-                  title={bloqueado ? 'Ya vendido / sin sillas disponibles' : undefined}
-                  style={{ cursor: bloqueado ? 'not-allowed' : 'pointer', opacity: bloqueado ? 0.75 : 1, position: 'relative' }}
+                  title={palco.bloqueado ? 'Bloqueado por un administrador' : (estaBloqueado ? 'Ya vendido / sin sillas disponibles' : undefined)}
+                  style={{
+                    cursor: estaBloqueado ? 'not-allowed' : 'pointer',
+                    opacity: estaBloqueado ? 0.75 : 1,
+                    position: 'relative',
+                    ...(palco.bloqueado ? { background: 'linear-gradient(135deg, #7f8c8d, #4a4a4a)' } : {})
+                  }}
                 >
                   {/* Indicador de tipo */}
                   <div className={`palco-tipo-indicator ${palco.convertido ? 'convertido' : palco.tipo}`}>
-                    {palco.convertido ? '🔄' : (palco.tipo === 'completo' ? '📦' : '🪑')}
+                    {palco.bloqueado ? '🔒' : palco.convertido ? '🔄' : (palco.tipo === 'completo' ? '📦' : '🪑')}
                   </div>
-                  
+
                   Palco {palco.numero}
                   <br />
                   <span>
-                    {estado === 'disponible' && `Disponible (${sillasDisponibles} sillas)`}
-                    {estado === 'reservado' && `Reservado (${sillasDisponibles} sillas libres)`}
-                    {estado === 'vendido' && `Vendido`}
+                    {palco.bloqueado && 'Bloqueado'}
+                    {!palco.bloqueado && estado === 'disponible' && `Disponible (${sillasDisponibles} sillas)`}
+                    {!palco.bloqueado && estado === 'reservado' && `Reservado (${sillasDisponibles} sillas libres)`}
+                    {!palco.bloqueado && estado === 'vendido' && `Vendido`}
                   </span>
                   <br />
                   <span style={{
@@ -5021,13 +5069,13 @@ const handleConfirmarReservaEspecifica = async (e) => {
                       ? (palco.precio ? `$${palco.precio.toLocaleString()}` : '⚠️ Sin precio asignado')
                       : `$${(PRECIO_SILLA.viernes || 0).toLocaleString()}/día`}
                   </span>
-                  {/* Botones de conversión - Solo administradores */}
+                  {/* Botones de administración - Solo administradores */}
                   {canConvertPalcos() && (
-                    <div style={{ marginTop: 8 }}>
+                    <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'center' }}>
                       {palco.tipo === 'completo' && (
                         <button
                           className="btn"
-                          style={{ backgroundColor: '#f39c12', color: '#fff', fontSize: 12, marginRight: 4 }}
+                          style={{ backgroundColor: '#f39c12', color: '#fff', fontSize: 12 }}
                           onClick={e => { e.stopPropagation(); convertirPalcoAporSillas(palco.numero); }}
                           disabled={palco.estado !== 'disponible'}
                           title="Convertir a palco por sillas"
@@ -5046,6 +5094,14 @@ const handleConfirmarReservaEspecifica = async (e) => {
                           🔄 Convertir a completo
                         </button>
                       )}
+                      <button
+                        className="btn"
+                        style={{ backgroundColor: palco.bloqueado ? '#27ae60' : '#7f8c8d', color: '#fff', fontSize: 12 }}
+                        onClick={e => { e.stopPropagation(); toggleBloqueoPalco(palco.numero); }}
+                        title={palco.bloqueado ? 'Desbloquear palco' : 'Bloquear palco'}
+                      >
+                        {palco.bloqueado ? '🔓 Desbloquear' : '🔒 Bloquear'}
+                      </button>
                     </div>
                   )}
                 </div>
