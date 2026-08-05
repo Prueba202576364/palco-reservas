@@ -404,7 +404,7 @@ html, body {
 .palcos-grid {
   display: grid !important;
   grid-template-columns: repeat(5, 1fr) !important; /* iPad Pro: 5 columnas */
-  gap: 18px !important;
+  gap: 28px 18px !important;
   margin-top: 10px !important;
   margin-bottom: 20px !important; /* 🆕 ESPACIADO REDUCIDO CON PAGINACIÓN */
   overflow-y: visible !important;
@@ -416,7 +416,7 @@ html, body {
 /* ===== PALCOS INDIVIDUALES ===== */
 .palco {
   border-radius: 10px !important;
-  padding: 22px 0 12px 0 !important;
+  padding: 22px 0 18px 0 !important;
   text-align: center !important;
   font-size: 1.1rem !important;
   font-weight: 600 !important;
@@ -425,7 +425,7 @@ html, body {
   transition: transform 0.1s, box-shadow 0.1s !important;
   user-select: none !important;
   min-height: 130px !important;
-  max-height: 160px !important;
+  max-height: none !important;
 }
 
 .palco span {
