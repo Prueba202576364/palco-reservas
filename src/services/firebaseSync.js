@@ -1,10 +1,10 @@
-import { 
-  doc, 
-  setDoc, 
-  getDoc, 
-  onSnapshot, 
-  collection, 
-  addDoc, 
+import {
+  doc,
+  setDoc,
+  getDoc,
+  onSnapshot,
+  collection,
+  addDoc,
   updateDoc,
   deleteDoc,
   query,
@@ -12,7 +12,8 @@ import {
   orderBy,
   serverTimestamp,
   getDocs,
-  limit
+  limit,
+  runTransaction
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
@@ -43,6 +44,40 @@ class FirebaseSyncService {
       console.error('❌ Error sincronizando palcos:', error);
       throw error;
     }
+  }
+
+  // 🔒 ACTUALIZAR PALCOS DE FORMA ATÓMICA (transacción de Firestore).
+  //
+  // Los 40 palcos viven en un solo documento (feria/palcos), y hasta ahora
+  // cada cambio se guardaba con setDoc() del arreglo completo tal como lo
+  // tenía esa persona en pantalla — sin leer primero el estado real del
+  // servidor. Si dos personas (dos vendedores) escribían casi al mismo
+  // tiempo, la segunda escritura borraba por completo lo que acababa de
+  // guardar la primera, pudiendo incluso vender el mismo palco dos veces.
+  //
+  // Esta función lee el documento DENTRO de la transacción (siempre el dato
+  // más reciente del servidor, no lo que haya en el estado local de React),
+  // le aplica `actualizador` (una función pura que recibe los palcos
+  // actuales y devuelve el nuevo arreglo), y escribe el resultado — todo de
+  // forma atómica. Si otra transacción modifica el documento al mismo
+  // tiempo, Firestore reintenta automáticamente con el dato ya actualizado.
+  //
+  // `actualizador` puede lanzar un error (ej. "el palco ya no está
+  // disponible") para abortar la transacción sin escribir nada.
+  async actualizarPalcosTransaccion(actualizador) {
+    const nuevosPalcos = await runTransaction(db, async (transaction) => {
+      const snap = await transaction.get(this.palcosRef);
+      const palcosActuales = snap.exists() ? (snap.data().palcos || []) : [];
+      const resultado = actualizador(palcosActuales);
+      transaction.set(this.palcosRef, {
+        palcos: resultado,
+        ultimaActualizacion: serverTimestamp(),
+        appOrigen: 'vendedor'
+      });
+      return resultado;
+    });
+    console.log('✅ Palcos actualizados de forma atómica');
+    return nuevosPalcos;
   }
 
   // 💳 SINCRONIZAR PAGOS PENDIENTES
@@ -346,6 +381,24 @@ class FirebaseSyncService {
       console.log(`✅ Pago del vendedor ${aprobado ? 'aprobado' : 'rechazado'} en Firebase:`, pagoId);
     } catch (error) {
       console.error('❌ Error resolviendo pago del vendedor:', error);
+      throw error;
+    }
+  }
+
+  // ⏰ Marcar un pago pendiente como "expirado" (nadie lo verificó a tiempo).
+  // Distinto de "rechazado" para que quede claro en los reportes que nadie
+  // lo revisó, en vez de que un vendedor lo haya rechazado a propósito.
+  async expirarPagoVendedor(pagoId) {
+    try {
+      const pagoRef = doc(this.pagosRef, pagoId);
+      await setDoc(pagoRef, {
+        estado: 'expirado',
+        motivoRechazo: 'Nadie lo verificó dentro del plazo — liberado automáticamente',
+        timestampResolucion: serverTimestamp()
+      }, { merge: true });
+      console.log('⏰ Pago marcado como expirado en Firebase:', pagoId);
+    } catch (error) {
+      console.error('❌ Error marcando pago como expirado:', error);
       throw error;
     }
   }

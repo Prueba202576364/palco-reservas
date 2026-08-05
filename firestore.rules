@@ -1,9 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permitir lectura y escritura pública para desarrollo
+    // Solo usuarios autenticados (vendedores/administradores logueados en la app)
+    // pueden leer o escribir datos. Nadie puede acceder sin iniciar sesión.
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
   }
-} 
+}

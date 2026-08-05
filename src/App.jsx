@@ -124,6 +124,12 @@ const TODOS_LOS_PALCOS = Array.from({length: TOTAL_PALCOS}, (_, i) => i + 1);
 
 const DIAS = ['viernes', 'sabado', 'domingo'];
 
+// ⏰ Si un pago queda "pendiente_verificacion" más de estas horas sin que
+// nadie lo apruebe ni lo rechace, se libera automáticamente (ver
+// expirarPagosPendientesAntiguos). Ajustable según qué tan rápido esperan
+// que el equipo verifique los comprobantes.
+const HORAS_EXPIRACION_PAGO_PENDIENTE = 4;
+
 // 📦 Todos los palcos inician como "completo" a $1.200.000, excepto el
 // 14, 21, 33 y 34 que inician como venta "por sillas" a $150.000/día. El
 // admin puede convertir individualmente cualquiera desde el panel cuando
@@ -601,6 +607,82 @@ const [pagoData, setPagoData] = useState({
   useEffect(() => { ingresosRef.current = ingresos; }, [ingresos]);
   useEffect(() => { historicoRef.current = historico; }, [historico]);
   useEffect(() => { pagosPendientesRef.current = pagosPendientes; }, [pagosPendientes]);
+
+  // ⏰ RED DE SEGURIDAD: liberar automáticamente los pagos pendientes que
+  // llevan demasiadas horas sin que nadie los verifique. Sin esto, un palco
+  // (o sillas) podía quedar bloqueado PARA SIEMPRE si a nadie se le ocurría
+  // revisar "Verificar Pagos". Esto no reemplaza esa revisión regular del
+  // equipo de ventas — es solo una red de seguridad best-effort que corre
+  // mientras alguien tenga la app abierta (no hay un servidor con cron
+  // detrás de esta app).
+  const expirarPagosPendientesAntiguos = async () => {
+    const ahora = Date.now();
+    const limiteMs = HORAS_EXPIRACION_PAGO_PENDIENTE * 60 * 60 * 1000;
+
+    const vencidos = pagosPendientesRef.current.filter(p => {
+      if (p.estado && p.estado !== 'pendiente_verificacion') return false;
+      const ts = p.timestamp?.toMillis ? p.timestamp.toMillis() : null;
+      if (!ts) return false; // sin timestamp confiable del servidor, no tocarlo
+      return (ahora - ts) > limiteMs;
+    });
+
+    if (vencidos.length === 0) return;
+
+    console.log(`⏰ ${vencidos.length} pago(s) pendiente(s) vencido(s), liberando automáticamente...`);
+
+    for (const pago of vencidos) {
+      try {
+        await firebaseSyncService.expirarPagoVendedor(pago.id);
+
+        const { reserva } = pago;
+        if (reserva?.palco != null) {
+          const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+            return palcosActuales.map(p => {
+              if (p.numero !== reserva.palco) return p;
+
+              if (p.tipo === 'completo') {
+                const teniaEstePago = (p.reservas || []).some(r => r.pagoId === pago.id);
+                return teniaEstePago ? { ...p, estado: 'disponible', reservas: [] } : p;
+              }
+
+              const nuevasReservas = { ...p.reservas };
+              Object.keys(nuevasReservas).forEach(dia => {
+                nuevasReservas[dia] = (nuevasReservas[dia] || []).filter(r => r.pagoId !== pago.id);
+              });
+              return { ...p, reservas: nuevasReservas };
+            });
+          });
+          setPalcos(nuevosPalcos);
+        }
+
+        agregarAlHistorico(
+          'Pago Expirado (automático)',
+          `${pago.metodoPago || ''} - ${reserva?.nombre || ''} - Nadie lo verificó en ${HORAS_EXPIRACION_PAGO_PENDIENTE}h, se liberó automáticamente`,
+          {
+            cedula: reserva?.cedula,
+            nombre: reserva?.nombre,
+            vendedor: reserva?.vendedor,
+            palco: reserva?.palco
+          }
+        );
+
+        setPagosPendientes(prev => prev.filter(p => p.id !== pago.id));
+      } catch (error) {
+        console.error('❌ Error liberando pago pendiente vencido:', pago.id, error);
+      }
+    }
+
+    mostrarMensaje('warning', `⏰ ${vencidos.length} reserva(s) pendiente(s) llevaban más de ${HORAS_EXPIRACION_PAGO_PENDIENTE} horas sin verificarse y se liberaron automáticamente.`);
+  };
+
+  useEffect(() => {
+    expirarPagosPendientesAntiguos();
+    const intervalId = setInterval(() => {
+      expirarPagosPendientesAntiguos();
+    }, 15 * 60 * 1000); // revisar cada 15 minutos
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     if (!canBackupRestore()) return;
@@ -1591,37 +1673,95 @@ if (!pagoData.montoEnviado || pagoData.montoEnviado <= 0) {
   try {
     // Generar ID único para el pago
     const pagoId = `pago_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    let imagenURL = null;
-    let driveInfo = null; // 🆕 NUEVO: Información de Google Drive
-    let fallaImagen = null; // 🆕 Si la imagen falla, NO se pierde la reserva completa
 
-    // Si hay imagen, procesarla a Base64. Si falla (formato no soportado,
-    // archivo muy grande, etc.) NO se aborta el envío: antes esto perdía
-    // TODA la reserva sin dejar rastro (ni en "Verificar Pagos" ni en
-    // ningún lado). Ahora la reserva se guarda igual, sin imagen, y el
-    // vendedor ve un aviso claro de qué pasó para volver a intentarlo.
+    // 🔒 PRIMERO: reclamar el palco (o las sillas) de forma ATÓMICA contra
+    // Firestore, ANTES de procesar la imagen o crear el registro de pago.
+    // Esto lee el dato más reciente del servidor (no lo que haya en
+    // pantalla) y si alguien más se adelantó — otro vendedor — se aborta
+    // aquí sin cobrar nada ni dejar ningún rastro.
+    try {
+      const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+        return palcosActuales.map(p => {
+          if (p.numero !== reservaParaPago.palco) return p;
+
+          if (p.tipo === 'completo') {
+            if (p.estado !== 'disponible') {
+              throw new Error('PALCO_NO_DISPONIBLE');
+            }
+            return {
+              ...p,
+              estado: 'reservado',
+              reservas: [{
+                nombre: reservaParaPago.nombre,
+                cedula: reservaParaPago.cedula,
+                telefono: reservaParaPago.telefono,
+                correo: reservaParaPago.correo,
+                vendedor: reservaParaPago.vendedor,
+                estadoPago: 'pendiente_verificacion',
+                pagoId: pagoId
+              }]
+            };
+          }
+
+          const paresDias = parsearDiasReserva(reservaParaPago.dias, Number(reservaParaPago.cantidad) || 1);
+          const nuevasReservas = { ...p.reservas };
+          // Validar ANTES de tocar nada: que cada día pedido tenga cupo real.
+          paresDias.forEach(({ dia, cantidad }) => {
+            const reservasDia = nuevasReservas[dia] || [];
+            const ocupadas = reservasDia.reduce((sum, r) => sum + (r.cantidad || 0), 0);
+            if (ocupadas + cantidad > 10) {
+              throw new Error('SILLAS_NO_DISPONIBLES');
+            }
+          });
+          paresDias.forEach(({ dia, cantidad }) => {
+            if (!nuevasReservas[dia] || !Array.isArray(nuevasReservas[dia])) {
+              nuevasReservas[dia] = [];
+            }
+            nuevasReservas[dia] = [
+              ...nuevasReservas[dia],
+              {
+                nombre: reservaParaPago.nombre,
+                cedula: reservaParaPago.cedula,
+                telefono: reservaParaPago.telefono,
+                correo: reservaParaPago.correo,
+                vendedor: reservaParaPago.vendedor,
+                cantidad,
+                estadoPago: 'pendiente_verificacion',
+                pagoId: pagoId
+              }
+            ];
+          });
+          return { ...p, reservas: nuevasReservas };
+        });
+      });
+      setPalcos(nuevosPalcos);
+    } catch (error) {
+      if (error.message === 'PALCO_NO_DISPONIBLE') {
+        mostrarMensaje('error', `🚫 El Palco ${reservaParaPago.palco} ya no está disponible (alguien se adelantó). No se cobró nada.`);
+      } else if (error.message === 'SILLAS_NO_DISPONIBLES') {
+        mostrarMensaje('error', `🚫 Ya no quedan suficientes sillas en el Palco ${reservaParaPago.palco} para esos días (alguien se adelantó). No se cobró nada.`);
+      } else {
+        console.error('❌ Error apartando el palco:', error);
+        mostrarMensaje('error', '❌ Error de conexión al apartar el palco. Intenta de nuevo.');
+      }
+      return;
+    }
+
+    // A partir de aquí el palco/las sillas ya quedaron apartados de forma
+    // segura. Si la imagen falla, la reserva NO se pierde: se guarda igual
+    // (sin imagen) y el vendedor ve un aviso claro para pedirla de nuevo.
+    let imagenURL = null;
+    let fallaImagen = null;
     if (pagoData.imagenComprobante) {
       try {
-        const imagenComprobante = await imageService.procesarComprobante(pagoData.imagenComprobante, pagoId, {
-          cliente: reservaParaPago.nombre,
-          cedula: reservaParaPago.cedula,
-          palco: reservaParaPago.palco,
-          monto: reservaParaPago.monto,
-          metodoPago: metodo.nombre
-        });
-
+        const imagenComprobante = await imageService.procesarComprobante(pagoData.imagenComprobante, pagoId);
         imagenURL = imagenComprobante.data;
-        driveInfo = imagenComprobante.driveInfo;
-
         console.log('✅ Comprobante procesado:', {
           tamaño: imageService.formatearTamaño(imagenComprobante.size),
-          dimensiones: imagenComprobante.dimensions,
-          driveUrl: driveInfo?.driveUrl || 'No subido a Drive'
+          dimensiones: imagenComprobante.dimensions
         });
-
       } catch (error) {
-        console.error('❌ Error procesando comprobante (la reserva se guarda igual):', error);
+        console.error('❌ Error procesando comprobante (la reserva ya quedó apartada igual):', error);
         fallaImagen = error.message;
       }
     }
@@ -1651,57 +1791,6 @@ if (!pagoData.montoEnviado || pagoData.montoEnviado <= 0) {
     firebaseSyncService.agregarPagoPendiente(pagoPendiente).catch((error) => {
       console.error('❌ Error sincronizando pago pendiente con Firebase:', error);
       mostrarMensaje('warning', '⚠️ El comprobante se guardó, pero no se pudo sincronizar con el servidor. Revisa tu conexión.');
-    });
-
-    // 🟡 Marcar el palco/las sillas como "reservado" DE INMEDIATO, mientras
-    // se espera la verificación. Antes el palco se veía "Disponible" para
-    // todos hasta que se aprobaba el pago, así que dos vendedores podían
-    // venderlo dos veces mientras el primer comprobante seguía pendiente.
-    setPalcos(prev => {
-      const nuevosPalcos = prev.map(p => {
-        if (p.numero !== reservaParaPago.palco) return p;
-
-        if (p.tipo === 'completo') {
-          return {
-            ...p,
-            estado: 'reservado',
-            reservas: [{
-              nombre: reservaParaPago.nombre,
-              cedula: reservaParaPago.cedula,
-              telefono: reservaParaPago.telefono,
-              correo: reservaParaPago.correo,
-              vendedor: reservaParaPago.vendedor,
-              estadoPago: 'pendiente_verificacion',
-              pagoId: pagoId
-            }]
-          };
-        }
-
-        const paresDias = parsearDiasReserva(reservaParaPago.dias, Number(reservaParaPago.cantidad) || 1);
-        const nuevasReservas = { ...p.reservas };
-        paresDias.forEach(({ dia, cantidad }) => {
-          if (!nuevasReservas[dia] || !Array.isArray(nuevasReservas[dia])) {
-            nuevasReservas[dia] = [];
-          }
-          nuevasReservas[dia] = [
-            ...nuevasReservas[dia],
-            {
-              nombre: reservaParaPago.nombre,
-              cedula: reservaParaPago.cedula,
-              telefono: reservaParaPago.telefono,
-              correo: reservaParaPago.correo,
-              vendedor: reservaParaPago.vendedor,
-              cantidad,
-              estadoPago: 'pendiente_verificacion',
-              pagoId: pagoId
-            }
-          ];
-        });
-        return { ...p, reservas: nuevasReservas };
-      });
-
-      firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-      return nuevosPalcos;
     });
 
     agregarAlHistorico(
@@ -1774,8 +1863,8 @@ const handleVerificarPagoVendedor = async (pagoPendiente, aprobado, observacione
       // hay que CONFIRMARLA (buscarla por pagoId y quitarle la marca de
       // pendiente) — no volver a agregarla, porque eso la duplicaría.
       if (reserva.tipoPalco === 'completo' || reserva.cantidad === '10 sillas (completo)') {
-        setPalcos(prev => {
-          const nuevosPalcos = prev.map(p => {
+        const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+          return palcosActuales.map(p => {
             if (p.numero !== reserva.palco) return p;
             const yaEstabaReservado = (p.reservas || []).some(r => r.pagoId === pagoPendiente.id);
             return {
@@ -1793,16 +1882,14 @@ const handleVerificarPagoVendedor = async (pagoPendiente, aprobado, observacione
                   }]
             };
           });
-
-          firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-          return nuevosPalcos;
         });
+        setPalcos(nuevosPalcos);
       } else {
         // Para palcos por sillas
         const paresDias = parsearDiasReserva(reserva.dias, Number(reserva.cantidad) || 1);
 
-        setPalcos(prev => {
-          const nuevosPalcos = prev.map(p => {
+        const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+          return palcosActuales.map(p => {
             if (p.numero !== reserva.palco) return p;
 
             const nuevasReservas = { ...p.reservas };
@@ -1843,10 +1930,8 @@ const handleVerificarPagoVendedor = async (pagoPendiente, aprobado, observacione
 
             return { ...p, reservas: nuevasReservas };
           });
-
-          firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-          return nuevosPalcos;
         });
+        setPalcos(nuevosPalcos);
       }
 
       registrarIngreso('venta', pagoPendiente.montoEsperado || 0, {
@@ -1897,8 +1982,8 @@ const handleVerificarPagoVendedor = async (pagoPendiente, aprobado, observacione
       // para siempre bloqueando ese cupo.
       const { reserva: reservaRechazada } = pagoPendiente;
       if (reservaRechazada) {
-        setPalcos(prev => {
-          const nuevosPalcos = prev.map(p => {
+        const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+          return palcosActuales.map(p => {
             if (p.numero !== reservaRechazada.palco) return p;
 
             if (p.tipo === 'completo') {
@@ -1912,10 +1997,8 @@ const handleVerificarPagoVendedor = async (pagoPendiente, aprobado, observacione
             });
             return { ...p, reservas: nuevasReservas };
           });
-
-          firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-          return nuevosPalcos;
         });
+        setPalcos(nuevosPalcos);
       }
 
       agregarAlHistorico(
@@ -2892,10 +2975,10 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
     };
     
     // 1. ACTUALIZAR PALCOS (sin registrar ingresos aquí)
-    setPalcos(prev => {
-      const nuevosPalcos = prev.map(p => {
+    const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+      return palcosActuales.map(p => {
         if (p.numero !== palco.numero) return p;
-        
+
         if (p.tipo === 'completo') {
           return {
             ...p,
@@ -2907,22 +2990,18 @@ const handleCancelarReserva = async (palco, reserva, dia = null) => {
             ...p,
             reservas: {
               ...p.reservas,
-              [dia]: p.reservas[dia].filter(r => 
-                !(r.cedula === reserva.cedula && 
-                  r.nombre === reserva.nombre && 
-                  r.telefono === reserva.telefono && 
+              [dia]: p.reservas[dia].filter(r =>
+                !(r.cedula === reserva.cedula &&
+                  r.nombre === reserva.nombre &&
+                  r.telefono === reserva.telefono &&
                   r.cantidad === reserva.cantidad)
               )
             }
           };
         }
       });
-      
-      // Sincronizar con Firebase inmediatamente
-      firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-      
-      return nuevosPalcos;
     });
+    setPalcos(nuevosPalcos);
     
     // 2. REGISTRAR EN INGRESOS (UNA SOLA VEZ)
     registrarIngreso('cancelacion', montoDevolucion, datosRegistro);
@@ -3778,9 +3857,9 @@ const handleConfirmarReservaEspecifica = async (e) => {
   }
 
   // --- FUNCIONES PARA CONVERTIR PALCO ---
-  function convertirPalcoAporSillas(numeroPalco) {
-    setPalcos(prevPalcos => {
-      const nuevosPalcos = prevPalcos.map(palco => {
+  async function convertirPalcoAporSillas(numeroPalco) {
+    const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+      return palcosActuales.map(palco => {
         if (palco.numero === numeroPalco && palco.tipo === 'completo') {
           return {
             numero: palco.numero,
@@ -3791,30 +3870,22 @@ const handleConfirmarReservaEspecifica = async (e) => {
         }
         return palco;
       });
-      
-      // Sincronizar con Firebase inmediatamente
-      firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-      
-      return nuevosPalcos;
     });
+    setPalcos(nuevosPalcos);
     mostrarMensaje('success', `Palco ${numeroPalco} ahora es por sillas.`);
   }
 
   // Función para convertir palco a completo
-  const convertirPalcoACompleto = (numeroPalco) => {
-    setPalcos(prev => {
-      const nuevosPalcos = prev.map(p => 
-        p.numero === numeroPalco 
+  const convertirPalcoACompleto = async (numeroPalco) => {
+    const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+      return palcosActuales.map(p =>
+        p.numero === numeroPalco
           ? { ...p, tipo: 'completo', estado: 'disponible', reservas: [] }
           : p
       );
-      
-      // Sincronizar con Firebase
-      firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-      
-      return nuevosPalcos;
     });
-    
+    setPalcos(nuevosPalcos);
+
     mostrarMensaje('success', `Palco ${numeroPalco} ahora es completo.`);
   };
 
@@ -3822,42 +3893,37 @@ const handleConfirmarReservaEspecifica = async (e) => {
   // sistema, ej. acuerdo previo por teléfono). Solo admins (canConvertPalcos).
   // No toca el estado de venta normal (disponible/reservado/vendido), es un
   // candado aparte que se puede quitar en cualquier momento.
-  const toggleBloqueoPalco = (numeroPalco) => {
+  const toggleBloqueoPalco = async (numeroPalco) => {
     if (!canConvertPalcos()) {
       mostrarMensaje('error', '🔒 Solo administradores pueden bloquear o desbloquear palcos');
       return;
     }
-    setPalcos(prev => {
-      const palcoActual = prev.find(p => p.numero === numeroPalco);
-      const nuevoBloqueado = !palcoActual?.bloqueado;
-      const nuevosPalcos = prev.map(p =>
+    let nuevoBloqueado = false;
+    const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+      const palcoActual = palcosActuales.find(p => p.numero === numeroPalco);
+      nuevoBloqueado = !palcoActual?.bloqueado;
+      return palcosActuales.map(p =>
         p.numero === numeroPalco ? { ...p, bloqueado: nuevoBloqueado } : p
       );
-
-      firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-
-      mostrarMensaje('success', nuevoBloqueado
-        ? `🔒 Palco ${numeroPalco} bloqueado`
-        : `🔓 Palco ${numeroPalco} desbloqueado`);
-
-      return nuevosPalcos;
     });
+    setPalcos(nuevosPalcos);
+
+    mostrarMensaje('success', nuevoBloqueado
+      ? `🔒 Palco ${numeroPalco} bloqueado`
+      : `🔓 Palco ${numeroPalco} desbloqueado`);
   };
 
   // 💰 Guardar precio(s) de palco(s) completo(s) — sirve tanto para editar uno solo
   // como para aplicar un precio en lote a varios palcos sin precio asignado.
   // cambios: [{ numero, precio }, ...]
-  const guardarPreciosPalcos = (cambios) => {
-    setPalcos(prev => {
-      const nuevosPalcos = prev.map(p => {
+  const guardarPreciosPalcos = async (cambios) => {
+    const nuevosPalcos = await firebaseSyncService.actualizarPalcosTransaccion((palcosActuales) => {
+      return palcosActuales.map(p => {
         const cambio = cambios.find(c => c.numero === p.numero);
         return cambio ? { ...p, precio: cambio.precio } : p;
       });
-
-      firebaseSyncService.sincronizarPalcos(nuevosPalcos);
-
-      return nuevosPalcos;
     });
+    setPalcos(nuevosPalcos);
 
     mostrarMensaje('success', cambios.length === 1
       ? `💰 Precio del Palco ${cambios[0].numero} actualizado a $${cambios[0].precio.toLocaleString()}`

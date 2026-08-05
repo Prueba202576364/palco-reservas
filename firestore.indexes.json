@@ -1,0 +1,22 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "pagosPendientes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "appOrigen", "order": "ASCENDING" },
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reservas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "appOrigen", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
